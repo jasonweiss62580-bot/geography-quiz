@@ -27,7 +27,7 @@ export function QuizSession() {
   const { playCorrect, playWrong, playFanfare } = useAudio();
   const { fire } = useConfetti();
 
-  const isRunning = phase === 'question';
+  const isRunning = phase === 'question' || phase === 'feedback';
   const elapsedMs = useTimer(isRunning);
 
   // Redirect if session not started

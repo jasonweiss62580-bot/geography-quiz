@@ -4,6 +4,7 @@ import { ModeSelect } from './pages/ModeSelect/ModeSelect';
 import { FormatSelect } from './pages/FormatSelect/FormatSelect';
 import { QuizSession } from './pages/QuizSession/QuizSession';
 import { Results } from './pages/Results/Results';
+import { SettingsScreen } from './pages/SettingsScreen/SettingsScreen';
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/topic/:topicId/mode/:modeId/format" element={<FormatSelect />} />
         <Route path="/quiz" element={<QuizSession />} />
         <Route path="/results" element={<Results />} />
+        <Route path="/settings" element={<SettingsScreen />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

@@ -94,6 +94,10 @@
   animation: credit-pulse 2.4s ease-in-out infinite;
 }
 
+.settingsCard:hover:not(.disabled) {
+  border-color: var(--color-text-muted);
+}
+
 .comingSoon {
   display: inline-block;
   margin-top: var(--space-2);
