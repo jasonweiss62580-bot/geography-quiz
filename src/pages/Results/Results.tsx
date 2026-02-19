@@ -49,7 +49,7 @@ export function Results() {
 
   function handleHome() {
     resetSession();
-    navigate('/', { replace: true });
+    navigate(`/topic/${config.topicId}/mode`, { replace: true });
   }
 
   const trophy = pct === 100 ? '🏆' : pct >= 80 ? '🌟' : pct >= 60 ? '👍' : '💪';

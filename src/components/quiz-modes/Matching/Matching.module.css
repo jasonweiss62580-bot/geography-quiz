@@ -65,6 +65,13 @@
   opacity: 0.7;
 }
 
+.wrong {
+  border-color: var(--color-danger);
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  transform: scale(1.02);
+}
+
 .progress {
   text-align: center;
   font-size: var(--text-sm);

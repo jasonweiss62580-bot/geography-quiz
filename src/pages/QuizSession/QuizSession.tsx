@@ -64,7 +64,7 @@ export function QuizSession() {
   const formatId = config.formatId;
 
   function handleMatchingComplete(results: { state: string; capital: string; correct: boolean }[]) {
-    const startTime = Date.now();
+    const timePerMatch = Math.round(elapsedMs / results.length);
     const records: AnswerRecord[] = results.map((r, i) => {
       const entity = questions[i]?.entity ?? questions[0].entity;
       return {
@@ -77,7 +77,7 @@ export function QuizSession() {
         userAnswer: r.capital,
         correct: r.correct,
         wasClose: false,
-        timeMs: startTime,
+        timeMs: timePerMatch,
       };
     });
     completeMatching(records);

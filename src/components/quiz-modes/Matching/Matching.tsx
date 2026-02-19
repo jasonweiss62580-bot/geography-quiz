@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { GeographicEntity } from '../../../data/types';
 import { shuffle } from '../../../lib/quiz-engine';
+import { useAudio } from '../../../hooks/useAudio';
 import styles from './Matching.module.css';
 
 interface MatchResult {
@@ -21,6 +22,8 @@ export function Matching({ entities, onComplete }: MatchingProps) {
   const [selectedCapital, setSelectedCapital] = useState<string | null>(null);
   const [matched, setMatched] = useState<Set<string>>(new Set());
   const [results, setResults] = useState<MatchResult[]>([]);
+  const [isWrong, setIsWrong] = useState(false);
+  const { playCorrect, playWrong } = useAudio();
 
   // When both are selected, attempt a match
   useEffect(() => {
@@ -34,6 +37,7 @@ export function Matching({ entities, onComplete }: MatchingProps) {
     };
 
     if (correct) {
+      playCorrect();
       const newMatched = new Set(matched);
       newMatched.add(selectedState);
       newMatched.add(selectedCapital);
@@ -46,8 +50,11 @@ export function Matching({ entities, onComplete }: MatchingProps) {
         setTimeout(() => onComplete(newResults), 300);
       }
     } else {
-      // Wrong — flash then deselect
+      // Wrong — flash red then deselect
+      playWrong();
+      setIsWrong(true);
       const timeoutId = setTimeout(() => {
+        setIsWrong(false);
         setSelectedState(null);
         setSelectedCapital(null);
       }, 600);
@@ -83,7 +90,7 @@ export function Matching({ entities, onComplete }: MatchingProps) {
               className={[
                 styles.item,
                 matched.has(state) ? styles.matched : '',
-                selectedState === state ? styles.selected : '',
+                selectedState === state ? (isWrong ? styles.wrong : styles.selected) : '',
               ].filter(Boolean).join(' ')}
               onClick={() => handleStateClick(state)}
               disabled={matched.has(state)}
@@ -100,7 +107,7 @@ export function Matching({ entities, onComplete }: MatchingProps) {
               className={[
                 styles.item,
                 matched.has(capital) ? styles.matched : '',
-                selectedCapital === capital ? styles.selected : '',
+                selectedCapital === capital ? (isWrong ? styles.wrong : styles.selected) : '',
               ].filter(Boolean).join(' ')}
               onClick={() => handleCapitalClick(capital)}
               disabled={matched.has(capital)}
