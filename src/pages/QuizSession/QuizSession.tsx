@@ -1,0 +1,159 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useQuizStore } from '../../stores/quizStore';
+import { useScoresStore } from '../../stores/scoresStore';
+import { useTimer } from '../../hooks/useTimer';
+import { useAudio } from '../../hooks/useAudio';
+import { useConfetti } from '../../hooks/useConfetti';
+import { PageLayout } from '../../components/layout/PageLayout/PageLayout';
+import { ProgressBar } from '../../components/ui/ProgressBar/ProgressBar';
+import { ScoreDisplay } from '../../components/ui/ScoreDisplay/ScoreDisplay';
+import { FeedbackOverlay } from '../../components/feedback/FeedbackOverlay/FeedbackOverlay';
+import { MapIdentify } from '../../components/quiz-modes/MapIdentify/MapIdentify';
+import { MapLocate } from '../../components/quiz-modes/MapLocate/MapLocate';
+import { FlashcardForward } from '../../components/quiz-modes/FlashcardForward/FlashcardForward';
+import { FlashcardReverse } from '../../components/quiz-modes/FlashcardReverse/FlashcardReverse';
+import { Matching } from '../../components/quiz-modes/Matching/Matching';
+import type { AnswerRecord } from '../../data/types';
+import styles from './QuizSession.module.css';
+
+export function QuizSession() {
+  const navigate = useNavigate();
+  const {
+    phase, config, questions, currentIndex, answers,
+    submitAnswer, advanceQuestion, completeMatching,
+  } = useQuizStore();
+  const { updateScore } = useScoresStore();
+  const { playCorrect, playWrong, playFanfare } = useAudio();
+  const { fire } = useConfetti();
+
+  const isRunning = phase === 'question';
+  const elapsedMs = useTimer(isRunning);
+
+  // Redirect if session not started
+  useEffect(() => {
+    if (phase === 'idle') navigate('/', { replace: true });
+  }, [phase, navigate]);
+
+  // Handle phase changes for audio/confetti
+  useEffect(() => {
+    if (phase === 'feedback') {
+      const lastAnswer = answers[answers.length - 1];
+      if (lastAnswer?.correct) playCorrect();
+      else playWrong();
+    }
+    if (phase === 'complete') {
+      const { lastSession } = useQuizStore.getState();
+      if (lastSession) {
+        updateScore(lastSession);
+        playFanfare();
+        fire();
+      }
+      navigate('/results', { replace: true });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
+
+  if (!config || questions.length === 0) return null;
+
+  const question = questions[currentIndex];
+  const correctCount = answers.filter((a) => a.correct).length;
+  const lastAnswer = answers[answers.length - 1];
+  const isFeedback = phase === 'feedback';
+  const modeId = config.modeId;
+  const formatId = config.formatId;
+
+  function handleMatchingComplete(results: { state: string; capital: string; correct: boolean }[]) {
+    const startTime = Date.now();
+    const records: AnswerRecord[] = results.map((r, i) => {
+      const entity = questions[i]?.entity ?? questions[0].entity;
+      return {
+        question: {
+          entity,
+          correctAnswer: entity.capital,
+          options: [],
+          prompt: 'Matching',
+        },
+        userAnswer: r.capital,
+        correct: r.correct,
+        wasClose: false,
+        timeMs: startTime,
+      };
+    });
+    completeMatching(records);
+  }
+
+  return (
+    <PageLayout
+      title="Quiz"
+      headerRight={
+        <ScoreDisplay
+          correct={correctCount}
+          total={answers.length}
+          elapsedMs={elapsedMs}
+          showTimer={config.showTimer}
+        />
+      }
+    >
+      <div className={styles.wrapper}>
+        {modeId !== 'matching' && (
+          <div className={styles.topBar}>
+            <ProgressBar current={currentIndex + 1} total={questions.length} />
+          </div>
+        )}
+
+        <div className={styles.content} key={`q-${currentIndex}`}>
+          {modeId === 'map-identify' && (
+            <MapIdentify
+              question={question}
+              formatId={formatId}
+              disabled={isFeedback}
+              allowClose={config.allowClose}
+              onAnswer={submitAnswer}
+            />
+          )}
+          {modeId === 'map-locate' && (
+            <MapLocate
+              question={question}
+              disabled={isFeedback}
+              onAnswer={submitAnswer}
+            />
+          )}
+          {modeId === 'flashcard-forward' && (
+            <FlashcardForward
+              question={question}
+              formatId={formatId}
+              disabled={isFeedback}
+              allowClose={config.allowClose}
+              onAnswer={submitAnswer}
+            />
+          )}
+          {modeId === 'flashcard-reverse' && (
+            <FlashcardReverse
+              question={question}
+              formatId={formatId}
+              disabled={isFeedback}
+              allowClose={config.allowClose}
+              onAnswer={submitAnswer}
+            />
+          )}
+          {modeId === 'matching' && (
+            <Matching
+              entities={questions.map((q) => q.entity)}
+              onComplete={handleMatchingComplete}
+            />
+          )}
+        </div>
+
+        {isFeedback && lastAnswer && modeId !== 'matching' && (
+          <FeedbackOverlay
+            correct={lastAnswer.correct}
+            wasClose={lastAnswer.wasClose}
+            correctAnswer={lastAnswer.question.correctAnswer}
+            onDismiss={advanceQuestion}
+          />
+        )}
+      </div>
+    </PageLayout>
+  );
+}

@@ -1,0 +1,25 @@
+.wrapper {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.map {
+  width: 100%;
+  height: auto;
+}
+
+.geography {
+  outline: none;
+  stroke: #fff;
+  stroke-width: 0.5;
+  transition: fill var(--transition-fast);
+}
+
+.geography.interactive {
+  cursor: pointer;
+}
+
+.geography.interactive:hover {
+  fill: var(--color-map-hover) !important;
+}
