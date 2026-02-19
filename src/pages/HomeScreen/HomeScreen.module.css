@@ -79,13 +79,19 @@
   color: var(--color-text-muted);
 }
 
+@keyframes credit-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.55; }
+}
+
 .credit {
   position: fixed;
   bottom: var(--space-4);
   right: var(--space-5);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  color: var(--color-primary);
   font-style: italic;
+  animation: credit-pulse 2.4s ease-in-out infinite;
 }
 
 .comingSoon {
