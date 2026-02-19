@@ -42,14 +42,6 @@ export function HomeScreen() {
             {!topic.available && <span className={styles.comingSoon}>Coming Soon</span>}
           </button>
         ))}
-        <button
-          className={`${styles.card} ${styles.settingsCard}`}
-          onClick={() => navigate('/settings')}
-        >
-          <span className={styles.cardEmoji}>⚙️</span>
-          <p className={styles.cardTitle}>Settings</p>
-          <p className={styles.cardSub}>Questions, timer, and spelling options</p>
-        </button>
       </div>
       <p className={styles.credit}>Designed by The Weiss Crew</p>
     </div>

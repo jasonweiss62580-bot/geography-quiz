@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import styles from './FeedbackOverlay.module.css';
 
 const CORRECT_MESSAGES = [
@@ -32,12 +32,15 @@ export function FeedbackOverlay({ correct, wasClose, correctAnswer, onDismiss }:
   }, [onDismiss]);
 
   const type = correct ? 'correct' : wasClose ? 'close' : 'wrong';
-  const message = correct
-    ? pick(CORRECT_MESSAGES)
-    : wasClose
-    ? pick(CLOSE_MESSAGES)
-    : pick(WRONG_MESSAGES);
-  const emoji = correct ? pick(CORRECT_EMOJIS) : pick(WRONG_EMOJIS);
+  // useMemo prevents pick() from re-running on every timer-driven re-render
+  const message = useMemo(
+    () => (correct ? pick(CORRECT_MESSAGES) : wasClose ? pick(CLOSE_MESSAGES) : pick(WRONG_MESSAGES)),
+    [correct, wasClose],
+  );
+  const emoji = useMemo(
+    () => (correct ? pick(CORRECT_EMOJIS) : pick(WRONG_EMOJIS)),
+    [correct],
+  );
 
   return (
     <div className={styles.overlay}>

@@ -56,6 +56,14 @@ export function ModeSelect() {
               <p className={styles.desc}>{mode.desc}</p>
             </button>
           ))}
+          <button
+            className={`${styles.card} ${styles.settingsCard}`}
+            onClick={() => navigate('/settings')}
+          >
+            <span className={styles.emoji}>⚙️</span>
+            <p className={styles.title}>Settings</p>
+            <p className={styles.desc}>Questions, timer, and spelling options</p>
+          </button>
         </div>
       </div>
     </PageLayout>
