@@ -42,7 +42,7 @@ export function ModeSelect() {
   }
 
   return (
-    <PageLayout title="Choose a Mode">
+    <PageLayout title="US States Geography">
       <div className={styles.wrapper}>
         <div className={styles.grid}>
           {MODES.map((mode) => (

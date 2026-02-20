@@ -94,6 +94,14 @@
   animation: credit-pulse 2.4s ease-in-out infinite;
 }
 
+.wip {
+  display: inline-block;
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-warning);
+}
+
 .comingSoon {
   display: inline-block;
   margin-top: var(--space-2);
