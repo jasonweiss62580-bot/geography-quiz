@@ -14,7 +14,7 @@ const TOPICS = [
     emoji: '🌍',
     title: 'World Countries',
     sub: 'Explore countries and capitals worldwide',
-    available: false,
+    available: true,
   },
 ];
 
@@ -33,7 +33,11 @@ export function HomeScreen() {
           <button
             key={topic.id}
             className={`${styles.card} ${!topic.available ? styles.disabled : ''}`}
-            onClick={() => topic.available && navigate(`/topic/${topic.id}/mode`)}
+            onClick={() => {
+              if (!topic.available) return;
+              if (topic.id === 'world-countries') navigate('/world');
+              else navigate(`/topic/${topic.id}/mode`);
+            }}
             disabled={!topic.available}
           >
             <span className={styles.cardEmoji}>{topic.emoji}</span>

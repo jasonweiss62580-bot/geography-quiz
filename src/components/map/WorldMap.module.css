@@ -1,0 +1,26 @@
+.wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.map {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.geography {
+  stroke: #fff;
+  stroke-width: 0.5;
+  transition: fill var(--transition-fast);
+}
+
+.interactive {
+  cursor: pointer;
+}
+
+.dimmed {
+  opacity: 0.4;
+}

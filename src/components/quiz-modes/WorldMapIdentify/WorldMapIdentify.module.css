@@ -1,0 +1,13 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.prompt {
+  font-size: var(--text-xl);
+  font-weight: 800;
+  font-family: var(--font-display);
+  color: var(--color-text);
+  text-align: center;
+}

@@ -1,0 +1,20 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.prompt {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  font-family: var(--font-display);
+  color: var(--color-text);
+  text-align: center;
+}
+
+.hint {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-top: calc(-1 * var(--space-2));
+}

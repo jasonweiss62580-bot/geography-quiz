@@ -23,8 +23,27 @@ interface QuizState {
   resetSession: () => void;
 }
 
-function getPool(topicId: string) {
-  return topicId === 'us-states' ? US_STATES : WORLD_COUNTRIES;
+function getPool(config: QuizConfig) {
+  if (config.topicId !== 'world-countries') return US_STATES;
+  const region = config.worldRegion;
+  if (!region || region === 'all') return WORLD_COUNTRIES;
+  // Macro region: filter by micro regions belonging to that macro
+  const macros = ['americas', 'africa', 'asia', 'europe', 'oceania'];
+  if (macros.includes(region)) {
+    return WORLD_COUNTRIES.filter((c) => {
+      // Import lazily to avoid circular deps — check macro by looking at micro's parent
+      const microToMacro: Record<string, string> = {
+        'north-america': 'americas', 'central-america-caribbean': 'americas', 'south-america': 'americas',
+        'western-europe': 'europe', 'eastern-europe': 'europe',
+        'north-africa': 'africa', 'eastern-africa': 'africa', 'middle-africa': 'africa', 'southern-africa': 'africa',
+        'middle-east': 'asia', 'south-asia': 'asia', 'east-southeast-asia': 'asia',
+        'oceania': 'oceania',
+      };
+      return c.region ? microToMacro[c.region] === region : false;
+    });
+  }
+  // Micro region
+  return WORLD_COUNTRIES.filter((c) => c.region === region);
 }
 
 export const useQuizStore = create<QuizState>((set, get) => ({
@@ -37,7 +56,7 @@ export const useQuizStore = create<QuizState>((set, get) => ({
   questionStartTime: 0,
 
   startSession(config) {
-    const pool = getPool(config.topicId);
+    const pool = getPool(config);
     const questions = generateQuestions(config, pool);
     set({
       phase: 'question',

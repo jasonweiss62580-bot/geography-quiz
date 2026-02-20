@@ -35,21 +35,17 @@ export function generateQuestions(
   return selected.map((entity): QuizQuestion => {
     switch (config.modeId) {
       case 'map-identify': {
-        // Highlighted state → identify the state name
         const correctAnswer = entity.name;
         const options =
           config.formatId === 'multiple-choice'
             ? generateOptions(correctAnswer, pool, (e) => e.name)
             : [];
-        return {
-          entity,
-          correctAnswer,
-          options,
-          prompt: 'Which state is highlighted?',
-        };
+        const prompt = config.topicId === 'world-countries'
+          ? 'Which country is highlighted?'
+          : 'Which state is highlighted?';
+        return { entity, correctAnswer, options, prompt };
       }
       case 'flashcard-forward': {
-        // State → capital
         const correctAnswer = entity.capital;
         const options =
           config.formatId === 'multiple-choice'
@@ -63,18 +59,15 @@ export function generateQuestions(
         };
       }
       case 'flashcard-reverse': {
-        // Capital → state
         const correctAnswer = entity.name;
         const options =
           config.formatId === 'multiple-choice'
             ? generateOptions(correctAnswer, pool, (e) => e.name)
             : [];
-        return {
-          entity,
-          correctAnswer,
-          options,
-          prompt: `${entity.capital} is the capital of which state?`,
-        };
+        const prompt = config.topicId === 'world-countries'
+          ? `${entity.capital} is the capital of which country?`
+          : `${entity.capital} is the capital of which state?`;
+        return { entity, correctAnswer, options, prompt };
       }
       case 'map-locate': {
         return {
@@ -85,12 +78,14 @@ export function generateQuestions(
         };
       }
       case 'matching': {
-        // Matching generates its own structure; return a placeholder
+        const prompt = config.topicId === 'world-countries'
+          ? 'Match countries to their capitals'
+          : 'Match states to their capitals';
         return {
           entity,
           correctAnswer: entity.capital,
           options: [],
-          prompt: 'Match states to their capitals',
+          prompt,
         };
       }
     }

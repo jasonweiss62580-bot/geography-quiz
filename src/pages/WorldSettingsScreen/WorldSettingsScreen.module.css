@@ -1,0 +1,72 @@
+.wrapper {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  width: 100%;
+  max-width: 440px;
+  box-shadow: var(--shadow-md);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.label {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.countInput {
+  width: 64px;
+  padding: var(--space-1) var(--space-2);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  text-align: center;
+}
+
+.countInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.hint {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-base);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.toggleInput {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+}

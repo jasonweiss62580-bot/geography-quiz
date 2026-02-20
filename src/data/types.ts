@@ -8,10 +8,11 @@ export type QuizModeId =
 export type AnswerFormatId = 'multiple-choice' | 'spelling';
 
 export interface GeographicEntity {
-  name: string;          // "California"
-  abbreviation: string;  // "CA"
-  capital: string;       // "Sacramento"
-  svgId: string;         // FIPS code e.g. "06" (us-atlas) — isoA3 for world countries
+  name: string;          // "California" / "Canada"
+  abbreviation: string;  // "CA" / "CA" (ISO alpha-2)
+  capital: string;       // "Sacramento" / "Ottawa"
+  svgId: string;         // FIPS code e.g. "06" (us-atlas) — numeric ISO for world ("124")
+  region?: string;       // world micro-region e.g. "north-america"
 }
 
 export interface QuizConfig {
@@ -21,6 +22,7 @@ export interface QuizConfig {
   questionCount: number;
   showTimer: boolean;
   allowClose: boolean;
+  worldRegion?: string; // micro- or macro-region filter for world quiz, e.g. "north-america" / "americas" / "all"
 }
 
 export interface QuizQuestion {
