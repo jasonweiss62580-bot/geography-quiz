@@ -24,7 +24,10 @@ interface QuizState {
 }
 
 function getPool(config: QuizConfig) {
-  if (config.topicId !== 'world-countries') return US_STATES;
+  if (config.topicId !== 'world-countries') {
+    if (!config.usRegion || config.usRegion === 'all') return US_STATES;
+    return US_STATES.filter((s) => s.region === config.usRegion);
+  }
   const region = config.worldRegion;
   if (!region || region === 'all') return WORLD_COUNTRIES;
   // Macro region: filter by micro regions belonging to that macro

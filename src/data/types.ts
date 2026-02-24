@@ -23,6 +23,7 @@ export interface QuizConfig {
   showTimer: boolean;
   allowClose: boolean;
   worldRegion?: string; // micro- or macro-region filter for world quiz, e.g. "north-america" / "americas" / "all"
+  usRegion?: string;    // region filter for US quiz, e.g. "new-england" / "all"
 }
 
 export interface QuizQuestion {

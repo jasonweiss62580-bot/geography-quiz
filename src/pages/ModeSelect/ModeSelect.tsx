@@ -1,21 +1,29 @@
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '../../components/layout/PageLayout/PageLayout';
+import { USRegionSelector } from '../../components/USRegionSelector/USRegionSelector';
 import { useQuizStore } from '../../stores/quizStore';
 import { useSettingsStore } from '../../stores/settingsStore';
+import { US_STATES } from '../../data/us-states';
+import type { USRegionId } from '../../data/us-regions';
 import type { QuizModeId, QuizTopicId } from '../../data/types';
 import { resumeCtx } from '../../lib/audio';
 import styles from './ModeSelect.module.css';
 
 const MODES = [
-  { id: 'map-identify', emoji: '🔍', title: 'Map Identify', desc: 'A highlighted state appears — name it!' },
-  { id: 'map-locate', emoji: '📍', title: 'Map Locate', desc: 'A state name appears — find it on the map!' },
+  { id: 'map-identify',      emoji: '🔍', title: 'Map Identify',  desc: 'A highlighted state appears — name it!' },
+  { id: 'map-locate',        emoji: '📍', title: 'Map Locate',    desc: 'A state name appears — find it on the map!' },
   { id: 'flashcard-forward', emoji: '📋', title: 'State → Capital', desc: 'See the state, name the capital.' },
   { id: 'flashcard-reverse', emoji: '🔄', title: 'Capital → State', desc: 'See the capital, name the state.' },
-  { id: 'matching', emoji: '🔗', title: 'Matching', desc: 'Match 10 states to their capitals.' },
+  { id: 'matching',          emoji: '🔗', title: 'Matching',       desc: 'Match states to their capitals.' },
 ] as const;
 
-// Modes that skip format select and go directly to quiz
 const SKIP_FORMAT: QuizModeId[] = ['map-locate', 'matching'];
+
+function countStates(region: USRegionId): number {
+  if (region === 'all') return US_STATES.length;
+  return US_STATES.filter((s) => s.region === region).length;
+}
 
 export function ModeSelect() {
   const { topicId } = useParams<{ topicId: string }>();
@@ -23,27 +31,44 @@ export function ModeSelect() {
   const { startSession } = useQuizStore();
   const { questionCount, showTimer, allowClose } = useSettingsStore();
 
+  const [selectedRegion, setSelectedRegion] = useState<USRegionId>('all');
+
+  const stateCount = countStates(selectedRegion);
+
   function handleMode(modeId: QuizModeId) {
     resumeCtx();
+    const baseConfig = {
+      topicId: topicId as QuizTopicId,
+      modeId,
+      formatId: 'multiple-choice' as const,
+      questionCount,
+      showTimer,
+      allowClose,
+      usRegion: selectedRegion === 'all' ? undefined : selectedRegion,
+    };
+
     if (SKIP_FORMAT.includes(modeId)) {
-      const count = modeId === 'matching' ? Math.min(questionCount, 10) : questionCount;
-      startSession({
-        topicId: topicId as QuizTopicId,
-        modeId,
-        formatId: 'multiple-choice', // unused for these modes
-        questionCount: count,
-        showTimer,
-        allowClose,
-      });
+      const count =
+        modeId === 'matching'
+          ? Math.min(questionCount, Math.min(10, stateCount))
+          : Math.min(questionCount, stateCount);
+      startSession({ ...baseConfig, questionCount: count });
       navigate('/quiz');
     } else {
-      navigate(`/topic/${topicId}/mode/${modeId}/format`);
+      const regionParam = selectedRegion !== 'all' ? `?region=${selectedRegion}` : '';
+      navigate(`/topic/${topicId}/mode/${modeId}/format${regionParam}`);
     }
   }
 
   return (
     <PageLayout title="US States Geography">
       <div className={styles.wrapper}>
+        <USRegionSelector selected={selectedRegion} onChange={setSelectedRegion} />
+
+        <p className={styles.countNote}>
+          {stateCount} state{stateCount === 1 ? '' : 's'} in this region
+        </p>
+
         <div className={styles.grid}>
           {MODES.map((mode) => (
             <button
