@@ -36,6 +36,12 @@ export function QuizSession() {
     if (phase === 'idle') navigate('/', { replace: true });
   }, [phase, navigate]);
 
+  // FIPS codes for region map tinting — must be before any conditional return
+  const regionIds = useMemo(() => {
+    if (!config?.usRegion) return undefined;
+    return US_STATES.filter((s) => s.region === config.usRegion).map((s) => s.svgId);
+  }, [config?.usRegion]);
+
   // Handle phase changes for audio/confetti
   useEffect(() => {
     if (phase === 'feedback') {
@@ -58,13 +64,6 @@ export function QuizSession() {
   if (!config || questions.length === 0) return null;
 
   const question = questions[currentIndex];
-
-  // FIPS codes for region map tinting — stable, doesn't change mid-session
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const regionIds = useMemo(() => {
-    if (!config.usRegion) return undefined;
-    return US_STATES.filter((s) => s.region === config.usRegion).map((s) => s.svgId);
-  }, [config.usRegion]);
   const correctCount = answers.filter((a) => a.correct).length;
   const lastAnswer = answers[answers.length - 1];
   const isFeedback = phase === 'feedback';
