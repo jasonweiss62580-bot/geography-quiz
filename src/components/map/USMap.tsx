@@ -11,37 +11,44 @@ interface USMapProps {
   highlightedIds?: string[];
   correctId?: string;
   wrongId?: string;
+  /** FIPS codes of states to show with a regional tint (soft indigo) */
+  regionIds?: string[];
   interactive?: boolean;
   onStateClick?: (entity: GeographicEntity) => void;
 }
 
-function getFill(fips: string, highlightedIds: string[], correctId?: string, wrongId?: string): string {
+function getFill(
+  fips: string,
+  highlightedIds: string[],
+  correctId?: string,
+  wrongId?: string,
+  regionIds?: string[],
+): string {
   if (correctId && fips === correctId) return '#4ade80';
   if (wrongId && fips === wrongId) return '#f87171';
   if (highlightedIds.includes(fips)) return '#fbbf24';
+  if (regionIds && regionIds.includes(fips)) return '#c7d2fe'; // indigo-200
   return '#cbd5e1';
 }
 
-// Stable geography prop — module-level constant so it never changes reference
 const GEO_URL = geoUrl as unknown as Parameters<typeof Geographies>[0]['geography'];
 
 export const USMap = memo(function USMap({
   highlightedIds = [],
   correctId,
   wrongId,
+  regionIds,
   interactive = false,
   onStateClick,
 }: USMapProps) {
-  // Stable children callback — only recreated when rendering inputs change.
-  // This prevents the library's internal GeographiesContent from unmounting/remounting
-  // on every render (which would cause states to flicker and lose click events).
   const renderGeographies = useCallback(
     ({ geographies }: { geographies: Feature<Geometry>[] }) =>
       geographies.map((geo) => {
         const fips = String(
           (geo as Feature<Geometry> & { id?: string | number }).id ?? '',
         ).padStart(2, '0');
-        const fill = getFill(fips, highlightedIds, correctId, wrongId);
+        const fill = getFill(fips, highlightedIds, correctId, wrongId, regionIds);
+
         return (
           <Geography
             key={fips}
@@ -63,8 +70,7 @@ export const USMap = memo(function USMap({
           />
         );
       }),
-    // Re-create only when map appearance or interaction inputs change
-    [highlightedIds, correctId, wrongId, interactive, onStateClick],
+    [highlightedIds, correctId, wrongId, regionIds, interactive, onStateClick],
   );
 
   return (

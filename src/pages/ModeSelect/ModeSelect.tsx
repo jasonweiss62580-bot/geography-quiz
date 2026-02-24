@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageLayout } from '../../components/layout/PageLayout/PageLayout';
 import { USRegionSelector } from '../../components/USRegionSelector/USRegionSelector';
@@ -29,11 +28,9 @@ export function ModeSelect() {
   const { topicId } = useParams<{ topicId: string }>();
   const navigate = useNavigate();
   const { startSession } = useQuizStore();
-  const { questionCount, showTimer, allowClose } = useSettingsStore();
+  const { questionCount, showTimer, allowClose, selectedUSRegion, setSelectedUSRegion } = useSettingsStore();
 
-  const [selectedRegion, setSelectedRegion] = useState<USRegionId>('all');
-
-  const stateCount = countStates(selectedRegion);
+  const stateCount = countStates(selectedUSRegion);
 
   function handleMode(modeId: QuizModeId) {
     resumeCtx();
@@ -44,7 +41,7 @@ export function ModeSelect() {
       questionCount,
       showTimer,
       allowClose,
-      usRegion: selectedRegion === 'all' ? undefined : selectedRegion,
+      usRegion: selectedUSRegion === 'all' ? undefined : selectedUSRegion,
     };
 
     if (SKIP_FORMAT.includes(modeId)) {
@@ -55,7 +52,7 @@ export function ModeSelect() {
       startSession({ ...baseConfig, questionCount: count });
       navigate('/quiz');
     } else {
-      const regionParam = selectedRegion !== 'all' ? `?region=${selectedRegion}` : '';
+      const regionParam = selectedUSRegion !== 'all' ? `?region=${selectedUSRegion}` : '';
       navigate(`/topic/${topicId}/mode/${modeId}/format${regionParam}`);
     }
   }
@@ -63,7 +60,7 @@ export function ModeSelect() {
   return (
     <PageLayout title="US States Geography">
       <div className={styles.wrapper}>
-        <USRegionSelector selected={selectedRegion} onChange={setSelectedRegion} />
+        <USRegionSelector selected={selectedUSRegion} onChange={setSelectedUSRegion} />
 
         <p className={styles.countNote}>
           {stateCount} state{stateCount === 1 ? '' : 's'} in this region

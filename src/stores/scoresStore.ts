@@ -4,11 +4,12 @@ import type { SessionResult } from '../data/types';
 
 interface HighScore {
   score: number;
+  total: number;       // questions in that session — needed for correct display
   totalTimeMs: number;
   completedAt: number;
 }
 
-type ScoreKey = string; // `${topicId}:${modeId}:${formatId}`
+type ScoreKey = string;
 
 interface ScoresState {
   scores: Record<ScoreKey, HighScore>;
@@ -17,8 +18,9 @@ interface ScoresState {
 }
 
 export function makeScoreKey(result: SessionResult): ScoreKey {
-  const { topicId, modeId, formatId } = result.config;
-  return `${topicId}:${modeId}:${formatId}`;
+  const { topicId, modeId, formatId, usRegion, worldRegion } = result.config;
+  const region = usRegion ?? worldRegion ?? 'all';
+  return `${topicId}:${modeId}:${formatId}:${region}`;
 }
 
 export const useScoresStore = create<ScoresState>()(
@@ -29,24 +31,29 @@ export const useScoresStore = create<ScoresState>()(
       updateScore(result) {
         const key = makeScoreKey(result);
         const existing = get().scores[key];
-        const newScore: HighScore = {
-          score: result.score,
-          totalTimeMs: result.totalTimeMs,
-          completedAt: result.completedAt,
-        };
-        const maxPossible = result.answers.length;
-        const isHigher = !existing || result.score > existing.score;
+        const total = result.answers.length;
+        const newPct = total > 0 ? result.score / total : 0;
+        const existingPct = existing && existing.total > 0 ? existing.score / existing.total : 0;
+
+        const isHigher = !existing || newPct > existingPct;
         const isFaster =
           existing &&
-          result.score === existing.score &&
+          newPct === existingPct &&
           result.totalTimeMs < existing.totalTimeMs;
+
         if (isHigher || isFaster) {
           set((state) => ({
-            scores: { ...state.scores, [key]: newScore },
+            scores: {
+              ...state.scores,
+              [key]: {
+                score: result.score,
+                total,
+                totalTimeMs: result.totalTimeMs,
+                completedAt: result.completedAt,
+              },
+            },
           }));
         }
-        // keep max possible for context but don't store it (can be derived)
-        void maxPossible;
       },
 
       getHighScore(key) {

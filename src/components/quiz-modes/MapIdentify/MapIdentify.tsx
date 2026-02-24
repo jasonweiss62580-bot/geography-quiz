@@ -10,17 +10,17 @@ interface MapIdentifyProps {
   formatId: 'multiple-choice' | 'spelling';
   disabled: boolean;
   allowClose: boolean;
+  regionIds?: string[];
   onAnswer: (answer: string) => void;
 }
 
-export function MapIdentify({ question, formatId, disabled, allowClose, onAnswer }: MapIdentifyProps) {
-  // Stable array reference — only changes when the question changes, not on every timer tick
+export function MapIdentify({ question, formatId, disabled, allowClose, regionIds, onAnswer }: MapIdentifyProps) {
   const highlightedIds = useMemo(() => [question.entity.svgId], [question.entity.svgId]);
 
   return (
     <div className={styles.wrapper}>
       <p className={styles.prompt}>Which state is highlighted?</p>
-      <USMap highlightedIds={highlightedIds} interactive={false} />
+      <USMap highlightedIds={highlightedIds} regionIds={regionIds} interactive={false} />
       {formatId === 'multiple-choice' ? (
         <MultipleChoice
           options={question.options}

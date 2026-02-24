@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuizStore } from '../../stores/quizStore';
 import { useScoresStore } from '../../stores/scoresStore';
@@ -15,6 +15,7 @@ import { FlashcardForward } from '../../components/quiz-modes/FlashcardForward/F
 import { FlashcardReverse } from '../../components/quiz-modes/FlashcardReverse/FlashcardReverse';
 import { Matching } from '../../components/quiz-modes/Matching/Matching';
 import type { AnswerRecord } from '../../data/types';
+import { US_STATES } from '../../data/us-states';
 import styles from './QuizSession.module.css';
 
 export function QuizSession() {
@@ -57,6 +58,13 @@ export function QuizSession() {
   if (!config || questions.length === 0) return null;
 
   const question = questions[currentIndex];
+
+  // FIPS codes for region map tinting — stable, doesn't change mid-session
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const regionIds = useMemo(() => {
+    if (!config.usRegion) return undefined;
+    return US_STATES.filter((s) => s.region === config.usRegion).map((s) => s.svgId);
+  }, [config.usRegion]);
   const correctCount = answers.filter((a) => a.correct).length;
   const lastAnswer = answers[answers.length - 1];
   const isFeedback = phase === 'feedback';
@@ -109,6 +117,7 @@ export function QuizSession() {
               formatId={formatId}
               disabled={isFeedback}
               allowClose={config.allowClose}
+              regionIds={regionIds}
               onAnswer={submitAnswer}
             />
           )}
@@ -116,6 +125,7 @@ export function QuizSession() {
             <MapLocate
               question={question}
               disabled={isFeedback}
+              regionIds={regionIds}
               onAnswer={submitAnswer}
             />
           )}

@@ -7,13 +7,14 @@ import styles from './MapLocate.module.css';
 interface MapLocateProps {
   question: QuizQuestion;
   disabled: boolean;
+  regionIds?: string[];
   onAnswer: (answer: string) => void;
 }
 
 // Stable empty array so USMap's useCallback doesn't see a new reference each render
 const EMPTY_IDS: string[] = [];
 
-export function MapLocate({ question, disabled, onAnswer }: MapLocateProps) {
+export function MapLocate({ question, disabled, regionIds, onAnswer }: MapLocateProps) {
   const [clickedId, setClickedId] = useState<string | null>(null);
   const [wasCorrect, setWasCorrect] = useState<boolean | null>(null);
 
@@ -51,6 +52,7 @@ export function MapLocate({ question, disabled, onAnswer }: MapLocateProps) {
         correctId={correctId}
         wrongId={wrongId}
         highlightedIds={EMPTY_IDS}
+        regionIds={regionIds}
         onStateClick={handleClick}
       />
     </div>

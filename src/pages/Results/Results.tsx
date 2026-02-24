@@ -70,7 +70,7 @@ export function Results() {
           )}
           {!isNewHigh && highScore && (
             <div className={styles.highScore}>
-              Best: {highScore.score}/{total} ({Math.round((highScore.score / total) * 100)}%)
+              Best: {highScore.score}/{highScore.total} ({Math.round((highScore.score / highScore.total) * 100)}%)
             </div>
           )}
         </div>
