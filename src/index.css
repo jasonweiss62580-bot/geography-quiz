@@ -16,7 +16,7 @@ html {
 body {
   font-family: var(--font-body);
   color: var(--color-text);
-  background: linear-gradient(135deg, #ede9fe 0%, #dbeafe 50%, #e0f2fe 100%);
+  background: #f5f5f5;
   min-height: 100vh;
   line-height: 1.6;
 }

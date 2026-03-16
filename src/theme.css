@@ -1,60 +1,64 @@
 :root {
-  /* Color palette */
-  --color-primary: #4f46e5;
-  --color-primary-hover: #4338ca;
-  --color-success: #16a34a;
-  --color-success-bg: #dcfce7;
-  --color-danger: #dc2626;
-  --color-danger-bg: #fee2e2;
-  --color-warning: #d97706;
-  --color-warning-bg: #fef3c7;
-  --color-highlight: #fbbf24;
-  --color-map-default: #cbd5e1;
-  --color-map-hover: #94a3b8;
-  --color-map-correct: #4ade80;
-  --color-map-wrong: #f87171;
-  --color-map-highlighted: #fbbf24;
-  --color-surface: #ffffff;
-  --color-surface-2: #f8fafc;
-  --color-border: #e2e8f0;
-  --color-text: #1e293b;
-  --color-text-muted: #64748b;
+  /* ── Clean Modern palette ─────────────────────────────────────────────── */
+  --color-primary:        #7c3aed;   /* electric violet */
+  --color-primary-hover:  #6d28d9;
+  --color-success:        #10b981;   /* emerald */
+  --color-success-bg:     #d1fae5;
+  --color-danger:         #ef4444;
+  --color-danger-bg:      #fee2e2;
+  --color-warning:        #f59e0b;
+  --color-warning-bg:     #fef3c7;
+  --color-highlight:      #8b5cf6;   /* lighter violet */
+
+  /* Map */
+  --color-map-default:    #d1d5db;
+  --color-map-hover:      #9ca3af;
+  --color-map-correct:    #4ade80;
+  --color-map-wrong:      #f87171;
+  --color-map-highlighted:#a78bfa;   /* violet highlight */
+
+  /* Surfaces */
+  --color-surface:        #ffffff;
+  --color-surface-2:      #f5f5f5;
+  --color-border:         #e5e7eb;
+  --color-text:           #111827;
+  --color-text-muted:     #6b7280;
 
   /* Typography */
-  --font-display: 'Nunito', 'Segoe UI', sans-serif;
-  --font-body: 'Nunito', 'Segoe UI', sans-serif;
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
+  --font-display: 'Inter', 'Segoe UI', sans-serif;
+  --font-body:    'Inter', 'Segoe UI', sans-serif;
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
   --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 1.875rem;
-  --text-4xl: 2.25rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+  --text-3xl:  1.875rem;
+  --text-4xl:  2.25rem;
 
   /* Spacing */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.25rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
   --space-10: 2.5rem;
   --space-12: 3rem;
   --space-16: 4rem;
 
-  /* Border radius */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
+  /* Border radius — tighter and sharper for modern feel */
+  --radius-sm:   0.25rem;
+  --radius-md:   0.5rem;
+  --radius-lg:   0.75rem;
+  --radius-xl:   1rem;
   --radius-full: 9999px;
 
-  /* Shadows */
+  /* Shadows — crisp, minimal */
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
 
   /* Animation */
   --transition-fast: 120ms ease;
