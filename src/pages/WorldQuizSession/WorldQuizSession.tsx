@@ -151,6 +151,7 @@ export function WorldQuizSession() {
             correct={lastAnswer.correct}
             wasClose={lastAnswer.wasClose}
             correctAnswer={lastAnswer.question.correctAnswer}
+            userAnswer={modeId === 'map-locate' ? lastAnswer.userAnswer : undefined}
             onDismiss={advanceQuestion}
           />
         )}

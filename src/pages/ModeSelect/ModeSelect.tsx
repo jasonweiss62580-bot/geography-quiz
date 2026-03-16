@@ -58,7 +58,7 @@ export function ModeSelect() {
   }
 
   return (
-    <PageLayout title="US States Geography">
+    <PageLayout title="US States Geography" backTo="/">
       <div className={styles.wrapper}>
         <USRegionSelector selected={selectedUSRegion} onChange={setSelectedUSRegion} />
 

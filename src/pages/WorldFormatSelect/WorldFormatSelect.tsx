@@ -14,8 +14,8 @@ function countEntities(region: string): number {
     const microToMacro: Record<string, string> = {
       'north-america': 'americas', 'central-america-caribbean': 'americas', 'south-america': 'americas',
       'western-europe': 'europe', 'eastern-europe': 'europe',
-      'north-africa': 'africa', 'eastern-africa': 'africa', 'middle-africa': 'africa', 'southern-africa': 'africa',
-      'middle-east': 'asia', 'south-asia': 'asia', 'east-southeast-asia': 'asia',
+      'north-africa': 'africa', 'west-africa': 'africa', 'middle-africa': 'africa', 'eastern-africa': 'africa', 'southern-africa': 'africa',
+      'middle-east': 'asia', 'central-asia': 'asia', 'south-asia': 'asia', 'east-southeast-asia': 'asia',
       'oceania': 'oceania',
     };
     return WORLD_COUNTRIES.filter((c) => c.region && microToMacro[c.region] === region).length;
@@ -48,7 +48,7 @@ export function WorldFormatSelect() {
   }
 
   return (
-    <PageLayout title="Choose a Format">
+    <PageLayout title="Choose a Format" backTo="/world">
       <div className={styles.wrapper}>
         <div className={styles.cards}>
           <button className={styles.card} onClick={() => handleFormat('multiple-choice')}>

@@ -7,7 +7,7 @@ export function SettingsScreen() {
     useSettingsStore();
 
   return (
-    <PageLayout title="Settings">
+    <PageLayout title="Settings" backTo="/topic/us-states/mode">
       <div className={styles.wrapper}>
         <div className={styles.panel}>
           <div className={styles.row}>

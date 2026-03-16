@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageLayout } from '../../components/layout/PageLayout/PageLayout';
 import { RegionSelector } from '../../components/RegionSelector/RegionSelector';
@@ -11,14 +10,17 @@ import { resumeCtx } from '../../lib/audio';
 import styles from './WorldModeSelect.module.css';
 
 const MODES = [
-  { id: 'map-identify',      emoji: '🔍', title: 'Map Identify',     desc: 'A highlighted country appears — name it!' },
-  { id: 'map-locate',        emoji: '📍', title: 'Map Locate',       desc: 'A country name appears — find it on the map!' },
-  { id: 'flashcard-forward', emoji: '📋', title: 'Country → Capital', desc: 'See the country, name the capital.' },
-  { id: 'flashcard-reverse', emoji: '🔄', title: 'Capital → Country', desc: 'See the capital, name the country.' },
-  { id: 'matching',          emoji: '🔗', title: 'Matching',          desc: 'Match 10 countries to their capitals.' },
+  { id: 'map-identify',      emoji: '🔍', title: 'Map Identify',     desc: 'A highlighted country appears — name it!',    requiresRegion: true },
+  { id: 'map-locate',        emoji: '📍', title: 'Map Locate',       desc: 'A country name appears — find it on the map!', requiresRegion: true },
+  { id: 'flashcard-forward', emoji: '📋', title: 'Country → Capital', desc: 'See the country, name the capital.',           requiresRegion: false },
+  { id: 'flashcard-reverse', emoji: '🔄', title: 'Capital → Country', desc: 'See the capital, name the country.',           requiresRegion: false },
+  { id: 'matching',          emoji: '🔗', title: 'Matching',          desc: 'Match 10 countries to their capitals.',         requiresRegion: false },
 ] as const;
 
 const SKIP_FORMAT: QuizModeId[] = ['map-locate', 'matching'];
+
+/** Region selections that are too broad for map-based quiz modes */
+const MAP_DISABLED_REGIONS = new Set(['all', 'americas']);
 
 /** Derive the worldRegion string to pass to QuizConfig */
 function resolveRegion(macro: MacroRegionId, micro: MicroRegionId): string {
@@ -36,8 +38,8 @@ function countEntities(macro: MacroRegionId, micro: MicroRegionId): number {
     const microToMacro: Record<string, string> = {
       'north-america': 'americas', 'central-america-caribbean': 'americas', 'south-america': 'americas',
       'western-europe': 'europe', 'eastern-europe': 'europe',
-      'north-africa': 'africa', 'eastern-africa': 'africa', 'middle-africa': 'africa', 'southern-africa': 'africa',
-      'middle-east': 'asia', 'south-asia': 'asia', 'east-southeast-asia': 'asia',
+      'north-africa': 'africa', 'west-africa': 'africa', 'middle-africa': 'africa', 'eastern-africa': 'africa', 'southern-africa': 'africa',
+      'middle-east': 'asia', 'central-asia': 'asia', 'south-asia': 'asia', 'east-southeast-asia': 'asia',
       'oceania': 'oceania',
     };
     return WORLD_COUNTRIES.filter((c) => c.region && microToMacro[c.region] === region).length;
@@ -48,16 +50,17 @@ function countEntities(macro: MacroRegionId, micro: MicroRegionId): number {
 export function WorldModeSelect() {
   const navigate = useNavigate();
   const { startSession } = useQuizStore();
-  const { questionCount, showTimer, allowClose } = useWorldSettingsStore();
-
-  const [selectedMacro, setSelectedMacro] = useState<MacroRegionId>('americas');
-  const [selectedMicro, setSelectedMicro] = useState<MicroRegionId>('all');
+  const {
+    questionCount, showTimer, allowClose,
+    selectedMacro, selectedMicro,
+    setSelectedMacro, setSelectedMicro,
+  } = useWorldSettingsStore();
 
   const entityCount = countEntities(selectedMacro, selectedMicro);
   const worldRegion = resolveRegion(selectedMacro, selectedMicro);
 
-  function handleMode(modeId: QuizModeId) {
-    if (entityCount === 0) return;
+  function handleMode(modeId: QuizModeId, mapDisabled: boolean) {
+    if (entityCount === 0 || mapDisabled) return;
     resumeCtx();
 
     const baseConfig = {
@@ -83,7 +86,7 @@ export function WorldModeSelect() {
   }
 
   return (
-    <PageLayout title="World Geography" showBack>
+    <PageLayout title="World Geography" backTo="/">
       <div className={styles.wrapper}>
         {/* Region selector */}
         <RegionSelector
@@ -102,18 +105,24 @@ export function WorldModeSelect() {
 
         {/* Mode cards */}
         <div className={styles.grid}>
-          {MODES.map((mode) => (
-            <button
-              key={mode.id}
-              className={`${styles.card} ${entityCount === 0 ? styles.cardDisabled : ''}`}
-              onClick={() => handleMode(mode.id as QuizModeId)}
-              disabled={entityCount === 0}
-            >
-              <span className={styles.emoji}>{mode.emoji}</span>
-              <p className={styles.title}>{mode.title}</p>
-              <p className={styles.desc}>{mode.desc}</p>
-            </button>
-          ))}
+          {MODES.map((mode) => {
+            const mapDisabled = mode.requiresRegion && MAP_DISABLED_REGIONS.has(worldRegion);
+            const isDisabled = entityCount === 0 || mapDisabled;
+            return (
+              <button
+                key={mode.id}
+                className={`${styles.card} ${isDisabled ? styles.cardDisabled : ''}`}
+                onClick={() => handleMode(mode.id as QuizModeId, mapDisabled)}
+                disabled={isDisabled}
+              >
+                <span className={styles.emoji}>{mode.emoji}</span>
+                <p className={styles.title}>{mode.title}</p>
+                <p className={styles.desc}>
+                  {mapDisabled ? 'Not available for this region selection' : mode.desc}
+                </p>
+              </button>
+            );
+          })}
           <button
             className={`${styles.card} ${styles.settingsCard}`}
             onClick={() => navigate('/world/settings')}

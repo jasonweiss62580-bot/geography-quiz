@@ -2,6 +2,7 @@ import type { MacroRegionId, MicroRegionId } from '../../data/world-regions';
 import { MACRO_REGIONS, getMicrosByMacro, isMacroAvailable } from '../../data/world-regions';
 import styles from './RegionSelector.module.css';
 
+
 interface RegionSelectorProps {
   selectedMacro: MacroRegionId;
   selectedMicro: MicroRegionId;
@@ -19,7 +20,7 @@ export function RegionSelector({
 
   function handleMacroClick(macroId: MacroRegionId) {
     onMacroChange(macroId);
-    onMicroChange('all'); // reset micro when changing macro
+    onMicroChange('all');
   }
 
   return (
@@ -50,7 +51,7 @@ export function RegionSelector({
         })}
       </div>
 
-      {/* Micro chips — only when a specific macro is selected */}
+      {/* Micro chips — only when a specific macro is selected and has sub-regions */}
       {selectedMacro !== 'all' && micros.length > 0 && (
         <div className={styles.microRow}>
           <button

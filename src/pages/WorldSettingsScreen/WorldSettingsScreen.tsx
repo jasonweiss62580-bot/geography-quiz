@@ -7,7 +7,7 @@ export function WorldSettingsScreen() {
     useWorldSettingsStore();
 
   return (
-    <PageLayout title="World Settings">
+    <PageLayout title="World Settings" backTo="/world">
       <div className={styles.wrapper}>
         <div className={styles.panel}>
           <div className={styles.row}>

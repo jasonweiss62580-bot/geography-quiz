@@ -42,6 +42,7 @@ export function WorldMapIdentify({
       <p className={styles.prompt}>Which country is highlighted?</p>
       <WorldMap
         macroRegion={macroRegion}
+        regionId={worldRegion}
         highlightedIds={highlightedIds}
         interactive={false}
       />

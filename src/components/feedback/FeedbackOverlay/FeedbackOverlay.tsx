@@ -22,10 +22,13 @@ interface FeedbackOverlayProps {
   correct: boolean;
   wasClose: boolean;
   correctAnswer: string;
+  /** When provided and the answer is wrong, shown instead of the correct answer.
+   *  Used by Map Locate so the user sees which country they accidentally clicked. */
+  userAnswer?: string;
   onDismiss: () => void;
 }
 
-export function FeedbackOverlay({ correct, wasClose, correctAnswer, onDismiss }: FeedbackOverlayProps) {
+export function FeedbackOverlay({ correct, wasClose, correctAnswer, userAnswer, onDismiss }: FeedbackOverlayProps) {
   useEffect(() => {
     const id = setTimeout(onDismiss, 1200);
     return () => clearTimeout(id);
@@ -49,7 +52,9 @@ export function FeedbackOverlay({ correct, wasClose, correctAnswer, onDismiss }:
         <p className={styles.message}>{message}</p>
         {!correct && (
           <p className={styles.answer}>
-            Answer: <strong>{correctAnswer}</strong>
+            {userAnswer
+              ? <>You selected: <strong>{userAnswer}</strong></>
+              : <>Answer: <strong>{correctAnswer}</strong></>}
           </p>
         )}
       </div>

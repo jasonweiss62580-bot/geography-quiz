@@ -44,9 +44,6 @@ export function HomeScreen() {
             <p className={styles.cardTitle}>{topic.title}</p>
             <p className={styles.cardSub}>{topic.sub}</p>
             {!topic.available && <span className={styles.comingSoon}>Coming Soon</span>}
-            {topic.id === 'world-countries' && topic.available && (
-              <span className={styles.wip}>[Work in Progress]</span>
-            )}
           </button>
         ))}
       </div>

@@ -30,7 +30,7 @@ export function FormatSelect() {
   }
 
   return (
-    <PageLayout title="Choose a Format">
+    <PageLayout title="Choose a Format" backTo={`/topic/${topicId}/mode`}>
       <div className={styles.wrapper}>
         <div className={styles.cards}>
           <button className={styles.card} onClick={() => handleFormat('multiple-choice')}>

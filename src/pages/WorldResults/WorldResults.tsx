@@ -40,6 +40,7 @@ export function WorldResults() {
   const key = makeScoreKey(lastSession);
   const highScore = getHighScore(key);
   const isNewHigh = highScore?.completedAt === lastSession.completedAt;
+  const isMatching = config.modeId === 'matching';
 
   function handlePlayAgain() {
     startSession(config);
@@ -57,20 +58,38 @@ export function WorldResults() {
     <PageLayout title="Results" showBack={false}>
       <div className={styles.wrapper}>
         <div className={styles.scoreCard}>
-          <span className={styles.trophy}>{trophy}</span>
-          <p className={styles.scoreLabel}>Your Score</p>
-          <p className={styles.scoreFraction}>{score}/{total}</p>
-          <p className={styles.scorePct}>{pct}%</p>
-          {config.showTimer && (
-            <p className={styles.time}>⏱ Total time: {fmt(totalTimeMs)}</p>
-          )}
-          {isNewHigh && (
-            <div className={styles.highScore}>🎉 New High Score!</div>
-          )}
-          {!isNewHigh && highScore && (
-            <div className={styles.highScore}>
-              Best: {highScore.score}/{highScore.total} ({Math.round((highScore.score / highScore.total) * 100)}%)
-            </div>
+          {isMatching ? (
+            <>
+              <span className={styles.trophy}>🏆</span>
+              <p className={styles.scoreLabel}>Matching Complete!</p>
+              {config.showTimer && (
+                <p className={styles.time}>⏱ Time: {fmt(totalTimeMs)}</p>
+              )}
+              {isNewHigh && config.showTimer && (
+                <div className={styles.highScore}>🎉 New Best Time!</div>
+              )}
+              {!isNewHigh && highScore && config.showTimer && (
+                <div className={styles.highScore}>Best: {fmt(highScore.totalTimeMs)}</div>
+              )}
+            </>
+          ) : (
+            <>
+              <span className={styles.trophy}>{trophy}</span>
+              <p className={styles.scoreLabel}>Your Score</p>
+              <p className={styles.scoreFraction}>{score}/{total}</p>
+              <p className={styles.scorePct}>{pct}%</p>
+              {config.showTimer && (
+                <p className={styles.time}>⏱ Total time: {fmt(totalTimeMs)}</p>
+              )}
+              {isNewHigh && (
+                <div className={styles.highScore}>🎉 New High Score!</div>
+              )}
+              {!isNewHigh && highScore && (
+                <div className={styles.highScore}>
+                  Best: {highScore.score}/{highScore.total} ({Math.round((highScore.score / highScore.total) * 100)}%)
+                </div>
+              )}
+            </>
           )}
         </div>
 
@@ -79,7 +98,7 @@ export function WorldResults() {
           <Button variant="ghost" onClick={handleHome}>Home</Button>
         </div>
 
-        {answers.length > 0 && (
+        {answers.length > 0 && !isMatching && (
           <div className={styles.reviewSection}>
             <h2 className={styles.reviewTitle}>Answer Review</h2>
             <div className={styles.reviewList}>

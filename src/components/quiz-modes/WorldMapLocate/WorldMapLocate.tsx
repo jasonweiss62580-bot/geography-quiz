@@ -54,6 +54,7 @@ export function WorldMapLocate({ question, disabled, worldRegion, onAnswer }: Wo
       <p className={styles.hint}>Find the country on the map</p>
       <WorldMap
         macroRegion={macroRegion}
+        regionId={worldRegion}
         interactive={interactive}
         correctId={correctId}
         wrongId={wrongId}
