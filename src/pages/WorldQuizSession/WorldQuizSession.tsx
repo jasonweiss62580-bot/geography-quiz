@@ -15,6 +15,7 @@ import { FlashcardForward } from '../../components/quiz-modes/FlashcardForward/F
 import { FlashcardReverse } from '../../components/quiz-modes/FlashcardReverse/FlashcardReverse';
 import { Matching } from '../../components/quiz-modes/Matching/Matching';
 import type { AnswerRecord } from '../../data/types';
+import { formatAnswer } from '../../lib/quiz-engine';
 import styles from './WorldQuizSession.module.css';
 
 export function WorldQuizSession() {
@@ -150,7 +151,7 @@ export function WorldQuizSession() {
           <FeedbackOverlay
             correct={lastAnswer.correct}
             wasClose={lastAnswer.wasClose}
-            correctAnswer={lastAnswer.question.correctAnswer}
+            correctAnswer={formatAnswer(lastAnswer.question)}
             userAnswer={modeId === 'map-locate' ? lastAnswer.userAnswer : undefined}
             onDismiss={advanceQuestion}
           />

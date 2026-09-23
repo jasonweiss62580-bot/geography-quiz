@@ -1,13 +1,13 @@
-import type { MacroRegionId, MicroRegionId } from '../../data/world-regions';
-import { MACRO_REGIONS, getMicrosByMacro, isMacroAvailable } from '../../data/world-regions';
+import type { MacroRegionId, MicroRegionId, StudySetId } from '../../data/world-regions';
+import { MACRO_REGIONS, getMicrosByMacro, getStudySetsByMacro, isMacroAvailable } from '../../data/world-regions';
 import styles from './RegionSelector.module.css';
 
 
 interface RegionSelectorProps {
   selectedMacro: MacroRegionId;
-  selectedMicro: MicroRegionId;
+  selectedMicro: MicroRegionId | StudySetId;
   onMacroChange: (macro: MacroRegionId) => void;
-  onMicroChange: (micro: MicroRegionId) => void;
+  onMicroChange: (micro: MicroRegionId | StudySetId) => void;
 }
 
 export function RegionSelector({
@@ -17,6 +17,7 @@ export function RegionSelector({
   onMicroChange,
 }: RegionSelectorProps) {
   const micros = selectedMacro === 'all' ? [] : getMicrosByMacro(selectedMacro);
+  const studySets = selectedMacro === 'all' ? [] : getStudySetsByMacro(selectedMacro);
 
   function handleMacroClick(macroId: MacroRegionId) {
     onMacroChange(macroId);
@@ -72,6 +73,25 @@ export function RegionSelector({
               {!micro.available && <span className={styles.soonBadge}>Soon</span>}
             </button>
           ))}
+        </div>
+      )}
+
+      {/* Class quiz chips — fixed country lists from a class study guide */}
+      {studySets.length > 0 && (
+        <div className={styles.studySetSection}>
+          <p className={styles.subLabel}>Class quizzes</p>
+          <div className={styles.studySetRow}>
+            {studySets.map((set) => (
+              <button
+                key={set.id}
+                className={`${styles.microChip} ${selectedMicro === set.id ? styles.microActive : ''}`}
+                onClick={() => onMicroChange(set.id)}
+              >
+                {set.label}
+                <span className={styles.rangeNote}>{set.range}</span>
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>

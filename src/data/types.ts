@@ -11,6 +11,7 @@ export interface GeographicEntity {
   name: string;          // "California" / "Canada"
   abbreviation: string;  // "CA" / "CA" (ISO alpha-2)
   capital: string;       // "Sacramento" / "Ottawa"
+  altCapitals?: string[]; // other accepted capitals, e.g. ["Cotonou"] for Benin
   svgId: string;         // FIPS code e.g. "06" (us-atlas) — numeric ISO for world ("124")
   region?: string;       // world micro-region e.g. "north-america"
 }
@@ -30,6 +31,7 @@ export interface QuizQuestion {
   entity: GeographicEntity;
   options: string[];         // 4 options (MC) or empty (spelling/map-locate)
   correctAnswer: string;
+  acceptedAnswers?: string[]; // other answers that also count as correct (typed spelling)
   prompt: string;
 }
 

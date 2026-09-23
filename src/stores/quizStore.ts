@@ -2,8 +2,8 @@ import { create } from 'zustand';
 import type { QuizConfig, QuizQuestion, AnswerRecord, SessionResult } from '../data/types';
 import { generateQuestions } from '../lib/quiz-engine';
 import { US_STATES } from '../data/us-states';
-import { WORLD_COUNTRIES } from '../data/world-countries';
-import { isClose } from '../lib/levenshtein';
+import { getCountriesForRegion } from '../data/world-countries';
+import { isClose, normalizeAnswer } from '../lib/levenshtein';
 
 type QuizPhase = 'idle' | 'question' | 'feedback' | 'complete';
 
@@ -28,25 +28,7 @@ function getPool(config: QuizConfig) {
     if (!config.usRegion || config.usRegion === 'all') return US_STATES;
     return US_STATES.filter((s) => s.region === config.usRegion);
   }
-  const region = config.worldRegion;
-  if (!region || region === 'all') return WORLD_COUNTRIES;
-  // Macro region: filter by micro regions belonging to that macro
-  const macros = ['americas', 'africa', 'asia', 'europe', 'oceania'];
-  if (macros.includes(region)) {
-    return WORLD_COUNTRIES.filter((c) => {
-      // Import lazily to avoid circular deps — check macro by looking at micro's parent
-      const microToMacro: Record<string, string> = {
-        'north-america': 'americas', 'central-america-caribbean': 'americas', 'south-america': 'americas',
-        'western-europe': 'europe', 'eastern-europe': 'europe',
-        'north-africa': 'africa', 'eastern-africa': 'africa', 'middle-africa': 'africa', 'southern-africa': 'africa',
-        'middle-east': 'asia', 'south-asia': 'asia', 'east-southeast-asia': 'asia',
-        'oceania': 'oceania',
-      };
-      return c.region ? microToMacro[c.region] === region : false;
-    });
-  }
-  // Micro region
-  return WORLD_COUNTRIES.filter((c) => c.region === region);
+  return getCountriesForRegion(config.worldRegion);
 }
 
 export const useQuizStore = create<QuizState>((set, get) => ({
@@ -76,10 +58,11 @@ export const useQuizStore = create<QuizState>((set, get) => ({
     if (!config) return;
     const question = questions[currentIndex];
     const timeMs = Date.now() - questionStartTime;
-    const normalized = userAnswer.trim().toLowerCase();
-    const target = question.correctAnswer.trim().toLowerCase();
-    const exact = normalized === target;
-    const close = !exact && isClose(normalized, target);
+    const normalized = normalizeAnswer(userAnswer);
+    const targets = [question.correctAnswer, ...(question.acceptedAnswers ?? [])]
+      .map(normalizeAnswer);
+    const exact = targets.includes(normalized);
+    const close = !exact && targets.some((t) => isClose(normalized, t));
     const correct = exact || (config.allowClose && close);
     const record: AnswerRecord = {
       question,

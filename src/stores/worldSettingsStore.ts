@@ -1,18 +1,18 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { MacroRegionId, MicroRegionId } from '../data/world-regions';
+import type { MacroRegionId, MicroRegionId, StudySetId } from '../data/world-regions';
 
 interface WorldSettingsState {
   questionCount: number;
   showTimer: boolean;
   allowClose: boolean;
   selectedMacro: MacroRegionId;
-  selectedMicro: MicroRegionId;
+  selectedMicro: MicroRegionId | StudySetId;
   setQuestionCount: (n: number) => void;
   setShowTimer: (v: boolean) => void;
   setAllowClose: (v: boolean) => void;
   setSelectedMacro: (macro: MacroRegionId) => void;
-  setSelectedMicro: (micro: MicroRegionId) => void;
+  setSelectedMicro: (micro: MicroRegionId | StudySetId) => void;
 }
 
 export const useWorldSettingsStore = create<WorldSettingsState>()(

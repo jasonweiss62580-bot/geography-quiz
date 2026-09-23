@@ -1,4 +1,5 @@
 import type { GeographicEntity } from './types';
+import { MACRO_REGIONS, getStudySet } from './world-regions';
 
 /**
  * World countries for the geography quiz.
@@ -102,30 +103,30 @@ export const WORLD_COUNTRIES: GeographicEntity[] = [
   { name: 'Egypt',   abbreviation: 'EG', capital: 'Cairo',   svgId: '818', region: 'north-africa' },
   { name: 'Sudan',   abbreviation: 'SD', capital: 'Khartoum',svgId: '729', region: 'north-africa' },
 
-  // ── West Africa ──────────────────────────────────────────────────────────────
+  // ── Western Africa ───────────────────────────────────────────────────────────
   { name: 'Mauritania',   abbreviation: 'MR', capital: 'Nouakchott',  svgId: '478', region: 'west-africa' },
   { name: 'Senegal',      abbreviation: 'SN', capital: 'Dakar',       svgId: '686', region: 'west-africa' },
-  { name: 'Gambia',       abbreviation: 'GM', capital: 'Banjul',      svgId: '270', region: 'west-africa' },
+  { name: 'The Gambia',   abbreviation: 'GM', capital: 'Banjul',      svgId: '270', region: 'west-africa' },
   { name: 'Guinea-Bissau',abbreviation: 'GW', capital: 'Bissau',      svgId: '624', region: 'west-africa' },
   { name: 'Guinea',       abbreviation: 'GN', capital: 'Conakry',     svgId: '324', region: 'west-africa' },
   { name: 'Sierra Leone', abbreviation: 'SL', capital: 'Freetown',    svgId: '694', region: 'west-africa' },
   { name: 'Liberia',      abbreviation: 'LR', capital: 'Monrovia',    svgId: '430', region: 'west-africa' },
-  { name: "Côte d'Ivoire",abbreviation: 'CI', capital: 'Yamoussoukro',svgId: '384', region: 'west-africa' },
+  { name: "Côte d'Ivoire",abbreviation: 'CI', capital: 'Yamoussoukro', altCapitals: ['Abidjan'], svgId: '384', region: 'west-africa' },
   { name: 'Ghana',        abbreviation: 'GH', capital: 'Accra',       svgId: '288', region: 'west-africa' },
   { name: 'Togo',         abbreviation: 'TG', capital: 'Lomé',        svgId: '768', region: 'west-africa' },
-  { name: 'Benin',        abbreviation: 'BJ', capital: 'Porto-Novo',  svgId: '204', region: 'west-africa' },
+  { name: 'Benin',        abbreviation: 'BJ', capital: 'Porto-Novo',  altCapitals: ['Cotonou'], svgId: '204', region: 'west-africa' },
   { name: 'Nigeria',      abbreviation: 'NG', capital: 'Abuja',       svgId: '566', region: 'west-africa' },
   { name: 'Mali',         abbreviation: 'ML', capital: 'Bamako',      svgId: '466', region: 'west-africa' },
   { name: 'Burkina Faso', abbreviation: 'BF', capital: 'Ouagadougou', svgId: '854', region: 'west-africa' },
   { name: 'Niger',        abbreviation: 'NE', capital: 'Niamey',      svgId: '562', region: 'west-africa' },
   { name: 'Cabo Verde',   abbreviation: 'CV', capital: 'Praia',       svgId: '132', region: 'west-africa' },
 
-  // ── Central Africa (Middle Africa) ───────────────────────────────────────────
+  // ── Middle Africa ────────────────────────────────────────────────────────────
   { name: 'Cameroon',                abbreviation: 'CM', capital: 'Yaoundé',    svgId: '120', region: 'middle-africa' },
   { name: 'Chad',                    abbreviation: 'TD', capital: "N'Djamena",  svgId: '148', region: 'middle-africa' },
   { name: 'Central African Republic',abbreviation: 'CF', capital: 'Bangui',     svgId: '140', region: 'middle-africa' },
-  { name: 'Dem. Rep. of Congo',      abbreviation: 'CD', capital: 'Kinshasa',   svgId: '180', region: 'middle-africa' },
-  { name: 'Republic of Congo',       abbreviation: 'CG', capital: 'Brazzaville',svgId: '178', region: 'middle-africa' },
+  { name: 'Democratic Republic of the Congo', abbreviation: 'CD', capital: 'Kinshasa',   svgId: '180', region: 'middle-africa' },
+  { name: 'Republic of the Congo',   abbreviation: 'CG', capital: 'Brazzaville',svgId: '178', region: 'middle-africa' },
   { name: 'Gabon',                   abbreviation: 'GA', capital: 'Libreville', svgId: '266', region: 'middle-africa' },
   { name: 'Equatorial Guinea',       abbreviation: 'GQ', capital: 'Malabo',     svgId: '226', region: 'middle-africa' },
   { name: 'São Tomé and Príncipe',   abbreviation: 'ST', capital: 'São Tomé',   svgId: '678', region: 'middle-africa' },
@@ -140,21 +141,21 @@ export const WORLD_COUNTRIES: GeographicEntity[] = [
   { name: 'Uganda',     abbreviation: 'UG', capital: 'Kampala',         svgId: '800', region: 'eastern-africa' },
   { name: 'Kenya',      abbreviation: 'KE', capital: 'Nairobi',         svgId: '404', region: 'eastern-africa' },
   { name: 'Rwanda',     abbreviation: 'RW', capital: 'Kigali',          svgId: '646', region: 'eastern-africa' },
-  { name: 'Burundi',    abbreviation: 'BI', capital: 'Gitega',          svgId: '108', region: 'eastern-africa' },
+  { name: 'Burundi',    abbreviation: 'BI', capital: 'Gitega', altCapitals: ['Bujumbura'], svgId: '108', region: 'eastern-africa' },
   { name: 'Tanzania',   abbreviation: 'TZ', capital: 'Dodoma',          svgId: '834', region: 'eastern-africa' },
   { name: 'Comoros',    abbreviation: 'KM', capital: 'Moroni',          svgId: '174', region: 'eastern-africa' },
   { name: 'Madagascar', abbreviation: 'MG', capital: 'Antananarivo',    svgId: '450', region: 'eastern-africa' },
   { name: 'Mauritius',  abbreviation: 'MU', capital: 'Port Louis',      svgId: '480', region: 'eastern-africa' },
   { name: 'Seychelles', abbreviation: 'SC', capital: 'Victoria',        svgId: '690', region: 'eastern-africa' },
+  { name: 'Zambia',       abbreviation: 'ZM', capital: 'Lusaka',      svgId: '894', region: 'eastern-africa' },
+  { name: 'Malawi',       abbreviation: 'MW', capital: 'Lilongwe',    svgId: '454', region: 'eastern-africa' },
+  { name: 'Mozambique',   abbreviation: 'MZ', capital: 'Maputo',      svgId: '508', region: 'eastern-africa' },
+  { name: 'Zimbabwe',     abbreviation: 'ZW', capital: 'Harare',      svgId: '716', region: 'eastern-africa' },
 
   // ── Southern Africa ──────────────────────────────────────────────────────────
-  { name: 'Zambia',       abbreviation: 'ZM', capital: 'Lusaka',      svgId: '894', region: 'southern-africa' },
-  { name: 'Malawi',       abbreviation: 'MW', capital: 'Lilongwe',    svgId: '454', region: 'southern-africa' },
-  { name: 'Mozambique',   abbreviation: 'MZ', capital: 'Maputo',      svgId: '508', region: 'southern-africa' },
-  { name: 'Zimbabwe',     abbreviation: 'ZW', capital: 'Harare',      svgId: '716', region: 'southern-africa' },
   { name: 'Botswana',     abbreviation: 'BW', capital: 'Gaborone',    svgId: '72',  region: 'southern-africa' },
   { name: 'Namibia',      abbreviation: 'NA', capital: 'Windhoek',    svgId: '516', region: 'southern-africa' },
-  { name: 'South Africa', abbreviation: 'ZA', capital: 'Pretoria',    svgId: '710', region: 'southern-africa' },
+  { name: 'South Africa', abbreviation: 'ZA', capital: 'Pretoria', altCapitals: ['Cape Town', 'Bloemfontein'], svgId: '710', region: 'southern-africa' },
   { name: 'Eswatini',     abbreviation: 'SZ', capital: 'Mbabane',     svgId: '748', region: 'southern-africa' },
   { name: 'Lesotho',      abbreviation: 'LS', capital: 'Maseru',      svgId: '426', region: 'southern-africa' },
 
@@ -228,3 +229,25 @@ export const WORLD_COUNTRIES: GeographicEntity[] = [
   { name: 'Nauru',            abbreviation: 'NR', capital: 'Yaren',         svgId: '520', region: 'oceania' },
   { name: 'Tuvalu',           abbreviation: 'TV', capital: 'Funafuti',      svgId: '798', region: 'oceania' },
 ];
+
+/**
+ * Countries in a region selection: 'all', a macro-region id, a micro-region id,
+ * or a study set id (e.g. 'africa-quiz-3').
+ */
+export function getCountriesForRegion(region?: string): GeographicEntity[] {
+  if (!region || region === 'all') return WORLD_COUNTRIES;
+  const set = getStudySet(region);
+  if (set) {
+    return set.svgIds
+      .map((id) => WORLD_COUNTRIES.find((c) => c.svgId === id))
+      .filter((c): c is GeographicEntity => c !== undefined);
+  }
+  const macro = MACRO_REGIONS.find((m) => m.id === region);
+  if (macro) {
+    const microIds = new Set<string>(macro.micro.map((m) => m.id));
+    // A macro with no sub-regions (Oceania) uses its own id as the region
+    microIds.add(macro.id);
+    return WORLD_COUNTRIES.filter((c) => c.region !== undefined && microIds.has(c.region));
+  }
+  return WORLD_COUNTRIES.filter((c) => c.region === region);
+}

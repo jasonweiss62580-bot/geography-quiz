@@ -6,6 +6,7 @@ import { useConfetti } from '../../hooks/useConfetti';
 import { useAudio } from '../../hooks/useAudio';
 import { PageLayout } from '../../components/layout/PageLayout/PageLayout';
 import { Button } from '../../components/ui/Button/Button';
+import { formatAnswer } from '../../lib/quiz-engine';
 import styles from './WorldResults.module.css';
 
 function fmt(ms: number): string {
@@ -111,7 +112,7 @@ export function WorldResults() {
                   <div className={styles.reviewText}>
                     <p className={styles.reviewQuestion}>{record.question.prompt}</p>
                     <p className={`${styles.reviewAnswer} ${record.correct ? styles.reviewCorrect : styles.reviewWrong}`}>
-                      {record.question.correctAnswer}
+                      {formatAnswer(record.question)}
                     </p>
                     {!record.correct && record.userAnswer && (
                       <p className={styles.reviewYours}>You answered: {record.userAnswer}</p>

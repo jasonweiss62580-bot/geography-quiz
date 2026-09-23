@@ -3,8 +3,8 @@ import { PageLayout } from '../../components/layout/PageLayout/PageLayout';
 import { RegionSelector } from '../../components/RegionSelector/RegionSelector';
 import { useQuizStore } from '../../stores/quizStore';
 import { useWorldSettingsStore } from '../../stores/worldSettingsStore';
-import { WORLD_COUNTRIES } from '../../data/world-countries';
-import type { MacroRegionId, MicroRegionId } from '../../data/world-regions';
+import { getCountriesForRegion } from '../../data/world-countries';
+import type { MacroRegionId, MicroRegionId, StudySetId } from '../../data/world-regions';
 import type { QuizModeId } from '../../data/types';
 import { resumeCtx } from '../../lib/audio';
 import styles from './WorldModeSelect.module.css';
@@ -23,28 +23,15 @@ const SKIP_FORMAT: QuizModeId[] = ['map-locate', 'matching'];
 const MAP_DISABLED_REGIONS = new Set(['all', 'americas']);
 
 /** Derive the worldRegion string to pass to QuizConfig */
-function resolveRegion(macro: MacroRegionId, micro: MicroRegionId): string {
+function resolveRegion(macro: MacroRegionId, micro: MicroRegionId | StudySetId): string {
   if (macro === 'all') return 'all';
   if (micro === 'all') return macro; // all countries in the macro
   return micro;
 }
 
 /** Count how many quiz-eligible countries are in the current selection */
-function countEntities(macro: MacroRegionId, micro: MicroRegionId): number {
-  const region = resolveRegion(macro, micro);
-  if (region === 'all') return WORLD_COUNTRIES.length;
-  const macros = ['americas', 'africa', 'asia', 'europe', 'oceania'];
-  if (macros.includes(region)) {
-    const microToMacro: Record<string, string> = {
-      'north-america': 'americas', 'central-america-caribbean': 'americas', 'south-america': 'americas',
-      'western-europe': 'europe', 'eastern-europe': 'europe',
-      'north-africa': 'africa', 'west-africa': 'africa', 'middle-africa': 'africa', 'eastern-africa': 'africa', 'southern-africa': 'africa',
-      'middle-east': 'asia', 'central-asia': 'asia', 'south-asia': 'asia', 'east-southeast-asia': 'asia',
-      'oceania': 'oceania',
-    };
-    return WORLD_COUNTRIES.filter((c) => c.region && microToMacro[c.region] === region).length;
-  }
-  return WORLD_COUNTRIES.filter((c) => c.region === region).length;
+function countEntities(macro: MacroRegionId, micro: MicroRegionId | StudySetId): number {
+  return getCountriesForRegion(resolveRegion(macro, micro)).length;
 }
 
 export function WorldModeSelect() {

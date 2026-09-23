@@ -54,10 +54,10 @@ export const MACRO_REGIONS: MacroRegionDef[] = [
     label: 'Africa',
     micro: [
       { id: 'north-africa',    label: 'North Africa',    macro: 'africa', available: true },
-      { id: 'west-africa',     label: 'West Africa',     macro: 'africa', available: true },
-      { id: 'middle-africa',   label: 'Central Africa',  macro: 'africa', available: true },
       { id: 'eastern-africa',  label: 'Eastern Africa',  macro: 'africa', available: true },
+      { id: 'middle-africa',   label: 'Middle Africa',   macro: 'africa', available: true },
       { id: 'southern-africa', label: 'Southern Africa', macro: 'africa', available: true },
+      { id: 'west-africa',     label: 'Western Africa',  macro: 'africa', available: true },
     ],
   },
   {
@@ -76,6 +76,53 @@ export const MACRO_REGIONS: MacroRegionDef[] = [
     micro: [],
   },
 ];
+
+/**
+ * Class study sets: fixed lists of countries matching a class study guide's
+ * numbered quizzes. Shown as an extra row of chips under their macro region.
+ * A set can span regions (Africa Quiz 6 covers Middle and Southern Africa).
+ */
+export type StudySetId =
+  | 'africa-quiz-1' | 'africa-quiz-2' | 'africa-quiz-3' | 'africa-quiz-4'
+  | 'africa-quiz-5' | 'africa-quiz-6' | 'africa-quiz-7' | 'africa-quiz-8';
+
+export interface StudySetDef {
+  id: StudySetId;
+  label: string;
+  /** Item numbers from the study guide, e.g. "#1-6" */
+  range: string;
+  macro: MacroRegionId;
+  /** ISO numeric codes, in study guide order */
+  svgIds: string[];
+}
+
+export const STUDY_SETS: StudySetDef[] = [
+  // North Africa: Algeria, Egypt, Libya, Morocco, Sudan, Tunisia
+  { id: 'africa-quiz-1', label: 'Quiz 1', range: '#1-6',   macro: 'africa', svgIds: ['12', '818', '434', '504', '729', '788'] },
+  // Eastern Africa: Burundi, Comoros, Djibouti, Eritrea, Ethiopia, Kenya
+  { id: 'africa-quiz-2', label: 'Quiz 2', range: '#7-12',  macro: 'africa', svgIds: ['108', '174', '262', '232', '231', '404'] },
+  // Eastern Africa: Madagascar, Mozambique, Malawi, Mauritius, Rwanda, Seychelles
+  { id: 'africa-quiz-3', label: 'Quiz 3', range: '#13-18', macro: 'africa', svgIds: ['450', '508', '454', '480', '646', '690'] },
+  // Eastern Africa: Somalia, South Sudan, Tanzania, Uganda, Zambia, Zimbabwe
+  { id: 'africa-quiz-4', label: 'Quiz 4', range: '#19-24', macro: 'africa', svgIds: ['706', '728', '834', '800', '894', '716'] },
+  // Middle Africa: Angola, Cameroon, Central African Republic, Chad, Republic of the Congo
+  { id: 'africa-quiz-5', label: 'Quiz 5', range: '#25-29', macro: 'africa', svgIds: ['24', '120', '140', '148', '178'] },
+  // Middle Africa: DR Congo, Equatorial Guinea, Gabon, São Tomé and Príncipe
+  // Southern Africa: Botswana, Eswatini, Lesotho, Namibia, South Africa
+  { id: 'africa-quiz-6', label: 'Quiz 6', range: '#30-38', macro: 'africa', svgIds: ['180', '226', '266', '678', '72', '748', '426', '516', '710'] },
+  // Western Africa: Benin, Burkina Faso, Cabo Verde, The Gambia, Ghana, Guinea, Guinea-Bissau, Côte d'Ivoire
+  { id: 'africa-quiz-7', label: 'Quiz 7', range: '#39-46', macro: 'africa', svgIds: ['204', '854', '132', '270', '288', '324', '624', '384'] },
+  // Western Africa: Liberia, Mali, Mauritania, Niger, Nigeria, Senegal, Sierra Leone, Togo
+  { id: 'africa-quiz-8', label: 'Quiz 8', range: '#47-54', macro: 'africa', svgIds: ['430', '466', '478', '562', '566', '686', '694', '768'] },
+];
+
+export function getStudySetsByMacro(macroId: MacroRegionId): StudySetDef[] {
+  return STUDY_SETS.filter((s) => s.macro === macroId);
+}
+
+export function getStudySet(id: string): StudySetDef | undefined {
+  return STUDY_SETS.find((s) => s.id === id);
+}
 
 /** All micro-regions across all macros */
 export const ALL_MICRO_REGIONS: MicroRegionDef[] = MACRO_REGIONS.flatMap((m) => m.micro);
@@ -99,6 +146,8 @@ export function getMicrosByMacro(macroId: MacroRegionId): MicroRegionDef[] {
 /** Get a human-readable label for any region ID */
 export function getRegionLabel(id: string): string {
   if (id === 'all') return 'All Available Regions';
+  const set = getStudySet(id);
+  if (set) return `${MACRO_REGIONS.find((m) => m.id === set.macro)?.label ?? ''} ${set.label}`.trim();
   for (const macro of MACRO_REGIONS) {
     if (macro.id === id) return macro.label;
     const micro = macro.micro.find((m) => m.id === id);
@@ -107,8 +156,10 @@ export function getRegionLabel(id: string): string {
   return id;
 }
 
-/** Get the macro region that a micro belongs to */
-export function getMacroForMicro(microId: MicroRegionId): MacroRegionId | null {
+/** Get the macro region that a micro-region or study set belongs to */
+export function getMacroForMicro(microId: MicroRegionId | StudySetId): MacroRegionId | null {
+  const set = getStudySet(microId);
+  if (set) return set.macro;
   for (const macro of MACRO_REGIONS) {
     if (macro.micro.find((m) => m.id === microId)) return macro.id;
   }

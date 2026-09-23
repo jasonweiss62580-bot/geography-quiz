@@ -25,6 +25,14 @@ export function generateOptions(
   return shuffle([correctAnswer, ...distractors]);
 }
 
+/** The correct answer for display, noting any other accepted answers,
+ *  e.g. "Porto-Novo (also Cotonou)". */
+export function formatAnswer(question: QuizQuestion): string {
+  const others = question.acceptedAnswers ?? [];
+  if (others.length === 0) return question.correctAnswer;
+  return `${question.correctAnswer} (also ${others.join(' or ')})`;
+}
+
 /** Generate quiz questions from config + entity pool. */
 export function generateQuestions(
   config: QuizConfig,
@@ -54,6 +62,7 @@ export function generateQuestions(
         return {
           entity,
           correctAnswer,
+          acceptedAnswers: entity.altCapitals,
           options,
           prompt: `What is the capital of ${entity.name}?`,
         };

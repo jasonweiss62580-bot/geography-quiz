@@ -53,6 +53,15 @@ const REGION_VIEW: Record<string, { center: [number, number]; scale: number; rot
   'middle-africa':   { center: [20, -1],   scale: 620 },
   'eastern-africa':  { center: [38, -5],   scale: 520 },
   'southern-africa': { center: [26, -24],  scale: 620 },
+  // Class quiz sets (see STUDY_SETS in world-regions.ts)
+  'africa-quiz-1':   { center: [17, 27],   scale: 530 },  // North Africa
+  'africa-quiz-2':   { center: [38, -5],   scale: 520 },  // Eastern Africa
+  'africa-quiz-3':   { center: [38, -5],   scale: 520 },
+  'africa-quiz-4':   { center: [38, -5],   scale: 520 },
+  'africa-quiz-5':   { center: [20, -1],   scale: 620 },  // Middle Africa
+  'africa-quiz-6':   { center: [22, -15],  scale: 580 },  // Middle + Southern Africa
+  'africa-quiz-7':   { center: [-3, 12],   scale: 650 },  // Western Africa
+  'africa-quiz-8':   { center: [-3, 12],   scale: 650 },
 
   // ── Asia ─────────────────────────────────────────────────────────────────────
   asia:                   { center: [90, 30],   scale: 320 },
