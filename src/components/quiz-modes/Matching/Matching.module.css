@@ -46,9 +46,12 @@
   user-select: none;
 }
 
-.item:hover:not(.matched):not(.selected) {
-  border-color: var(--color-primary);
-  transform: translateY(-1px);
+/* Skip hover on touch screens, where :hover sticks to the last tapped item. */
+@media (hover: hover) {
+  .item:hover:not(.matched):not(.selected) {
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+  }
 }
 
 .selected {
