@@ -92,28 +92,30 @@ export interface StudySetDef {
   /** Item numbers from the study guide, e.g. "#1-6" */
   range: string;
   macro: MacroRegionId;
+  /** Region(s) the set's countries come from; used to filter chips by region */
+  regions: MicroRegionId[];
   /** ISO numeric codes, in study guide order */
   svgIds: string[];
 }
 
 export const STUDY_SETS: StudySetDef[] = [
   // North Africa: Algeria, Egypt, Libya, Morocco, Sudan, Tunisia
-  { id: 'africa-quiz-1', label: 'Quiz 1', range: '#1-6',   macro: 'africa', svgIds: ['12', '818', '434', '504', '729', '788'] },
+  { id: 'africa-quiz-1', label: 'Quiz 1', range: '#1-6',   macro: 'africa', regions: ['north-africa'], svgIds: ['12', '818', '434', '504', '729', '788'] },
   // Eastern Africa: Burundi, Comoros, Djibouti, Eritrea, Ethiopia, Kenya
-  { id: 'africa-quiz-2', label: 'Quiz 2', range: '#7-12',  macro: 'africa', svgIds: ['108', '174', '262', '232', '231', '404'] },
+  { id: 'africa-quiz-2', label: 'Quiz 2', range: '#7-12',  macro: 'africa', regions: ['eastern-africa'], svgIds: ['108', '174', '262', '232', '231', '404'] },
   // Eastern Africa: Madagascar, Mozambique, Malawi, Mauritius, Rwanda, Seychelles
-  { id: 'africa-quiz-3', label: 'Quiz 3', range: '#13-18', macro: 'africa', svgIds: ['450', '508', '454', '480', '646', '690'] },
+  { id: 'africa-quiz-3', label: 'Quiz 3', range: '#13-18', macro: 'africa', regions: ['eastern-africa'], svgIds: ['450', '508', '454', '480', '646', '690'] },
   // Eastern Africa: Somalia, South Sudan, Tanzania, Uganda, Zambia, Zimbabwe
-  { id: 'africa-quiz-4', label: 'Quiz 4', range: '#19-24', macro: 'africa', svgIds: ['706', '728', '834', '800', '894', '716'] },
+  { id: 'africa-quiz-4', label: 'Quiz 4', range: '#19-24', macro: 'africa', regions: ['eastern-africa'], svgIds: ['706', '728', '834', '800', '894', '716'] },
   // Middle Africa: Angola, Cameroon, Central African Republic, Chad, Republic of the Congo
-  { id: 'africa-quiz-5', label: 'Quiz 5', range: '#25-29', macro: 'africa', svgIds: ['24', '120', '140', '148', '178'] },
+  { id: 'africa-quiz-5', label: 'Quiz 5', range: '#25-29', macro: 'africa', regions: ['middle-africa'], svgIds: ['24', '120', '140', '148', '178'] },
   // Middle Africa: DR Congo, Equatorial Guinea, Gabon, São Tomé and Príncipe
   // Southern Africa: Botswana, Eswatini, Lesotho, Namibia, South Africa
-  { id: 'africa-quiz-6', label: 'Quiz 6', range: '#30-38', macro: 'africa', svgIds: ['180', '226', '266', '678', '72', '748', '426', '516', '710'] },
+  { id: 'africa-quiz-6', label: 'Quiz 6', range: '#30-38', macro: 'africa', regions: ['middle-africa', 'southern-africa'], svgIds: ['180', '226', '266', '678', '72', '748', '426', '516', '710'] },
   // Western Africa: Benin, Burkina Faso, Cabo Verde, The Gambia, Ghana, Guinea, Guinea-Bissau, Côte d'Ivoire
-  { id: 'africa-quiz-7', label: 'Quiz 7', range: '#39-46', macro: 'africa', svgIds: ['204', '854', '132', '270', '288', '324', '624', '384'] },
+  { id: 'africa-quiz-7', label: 'Quiz 7', range: '#39-46', macro: 'africa', regions: ['west-africa'], svgIds: ['204', '854', '132', '270', '288', '324', '624', '384'] },
   // Western Africa: Liberia, Mali, Mauritania, Niger, Nigeria, Senegal, Sierra Leone, Togo
-  { id: 'africa-quiz-8', label: 'Quiz 8', range: '#47-54', macro: 'africa', svgIds: ['430', '466', '478', '562', '566', '686', '694', '768'] },
+  { id: 'africa-quiz-8', label: 'Quiz 8', range: '#47-54', macro: 'africa', regions: ['west-africa'], svgIds: ['430', '466', '478', '562', '566', '686', '694', '768'] },
 ];
 
 export function getStudySetsByMacro(macroId: MacroRegionId): StudySetDef[] {

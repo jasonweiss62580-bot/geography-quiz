@@ -5,23 +5,37 @@ import styles from './RegionSelector.module.css';
 
 interface RegionSelectorProps {
   selectedMacro: MacroRegionId;
-  selectedMicro: MicroRegionId | StudySetId;
+  selectedMicro: MicroRegionId;
+  selectedStudySet: StudySetId | null;
   onMacroChange: (macro: MacroRegionId) => void;
-  onMicroChange: (micro: MicroRegionId | StudySetId) => void;
+  onMicroChange: (micro: MicroRegionId) => void;
+  onStudySetChange: (id: StudySetId | null) => void;
 }
 
 export function RegionSelector({
   selectedMacro,
   selectedMicro,
+  selectedStudySet,
   onMacroChange,
   onMicroChange,
+  onStudySetChange,
 }: RegionSelectorProps) {
   const micros = selectedMacro === 'all' ? [] : getMicrosByMacro(selectedMacro);
-  const studySets = selectedMacro === 'all' ? [] : getStudySetsByMacro(selectedMacro);
+  // Class quizzes are filtered by the selected region ("All" shows every quiz)
+  const studySets = selectedMacro === 'all'
+    ? []
+    : getStudySetsByMacro(selectedMacro).filter(
+        (set) => selectedMicro === 'all' || set.regions.includes(selectedMicro),
+      );
 
   function handleMacroClick(macroId: MacroRegionId) {
     onMacroChange(macroId);
-    onMicroChange('all');
+    handleMicroClick('all');
+  }
+
+  function handleMicroClick(microId: MicroRegionId) {
+    onMicroChange(microId);
+    onStudySetChange(null);
   }
 
   return (
@@ -57,7 +71,7 @@ export function RegionSelector({
         <div className={styles.microRow}>
           <button
             className={`${styles.microChip} ${selectedMicro === 'all' ? styles.microActive : ''}`}
-            onClick={() => onMicroChange('all')}
+            onClick={() => handleMicroClick('all')}
           >
             All {MACRO_REGIONS.find((m) => m.id === selectedMacro)?.label}
           </button>
@@ -65,7 +79,7 @@ export function RegionSelector({
             <button
               key={micro.id}
               className={`${styles.microChip} ${selectedMicro === micro.id ? styles.microActive : ''} ${!micro.available ? styles.microDimmed : ''}`}
-              onClick={() => micro.available && onMicroChange(micro.id)}
+              onClick={() => micro.available && handleMicroClick(micro.id)}
               disabled={!micro.available}
               title={!micro.available ? 'Coming soon' : undefined}
             >
@@ -84,8 +98,9 @@ export function RegionSelector({
             {studySets.map((set) => (
               <button
                 key={set.id}
-                className={`${styles.microChip} ${selectedMicro === set.id ? styles.microActive : ''}`}
-                onClick={() => onMicroChange(set.id)}
+                className={`${styles.microChip} ${selectedStudySet === set.id ? styles.microActive : ''}`}
+                // Tapping the chosen quiz again goes back to the whole region
+                onClick={() => onStudySetChange(selectedStudySet === set.id ? null : set.id)}
               >
                 {set.label}
                 <span className={styles.rangeNote}>{set.range}</span>

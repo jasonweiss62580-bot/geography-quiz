@@ -34,3 +34,8 @@
 **What was decided:** Typed answers are compared ignoring case, accents, and apostrophes of any style (`normalizeAnswer` in src/lib/levenshtein.ts), for both exact and "close" matching, in US and World quizzes.
 **Why:** iPad keyboards type curly apostrophes and accented letters are hard to type, so correct answers like N'Djamena and Lomé were being marked wrong.
 **What was rejected:** Relying on the "allow close answers" setting, which only partly covered it and is off by default.
+
+## 2026-09-22, Class quizzes filtered by region
+**What was decided:** The "Class quizzes" row shows only the quizzes for the selected region chip (All Africa shows all eight). Quiz 6 appears under both Middle and Southern Africa. The chosen quiz is stored separately from the region (`selectedStudySet`), so the region chip stays highlighted; tapping a region clears the quiz, and tapping the chosen quiz again returns to the whole region.
+**Why:** Makes it quicker to find the right quiz and keeps the region context visible.
+**What was rejected:** Always showing all quizzes grouped under region headings (takes more space and wasn't what was asked).

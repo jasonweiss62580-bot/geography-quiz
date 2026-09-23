@@ -23,15 +23,16 @@ const SKIP_FORMAT: QuizModeId[] = ['map-locate', 'matching'];
 const MAP_DISABLED_REGIONS = new Set(['all', 'americas']);
 
 /** Derive the worldRegion string to pass to QuizConfig */
-function resolveRegion(macro: MacroRegionId, micro: MicroRegionId | StudySetId): string {
+function resolveRegion(macro: MacroRegionId, micro: MicroRegionId, studySet: StudySetId | null): string {
   if (macro === 'all') return 'all';
+  if (studySet) return studySet;
   if (micro === 'all') return macro; // all countries in the macro
   return micro;
 }
 
 /** Count how many quiz-eligible countries are in the current selection */
-function countEntities(macro: MacroRegionId, micro: MicroRegionId | StudySetId): number {
-  return getCountriesForRegion(resolveRegion(macro, micro)).length;
+function countEntities(macro: MacroRegionId, micro: MicroRegionId, studySet: StudySetId | null): number {
+  return getCountriesForRegion(resolveRegion(macro, micro, studySet)).length;
 }
 
 export function WorldModeSelect() {
@@ -39,12 +40,12 @@ export function WorldModeSelect() {
   const { startSession } = useQuizStore();
   const {
     questionCount, showTimer, allowClose,
-    selectedMacro, selectedMicro,
-    setSelectedMacro, setSelectedMicro,
+    selectedMacro, selectedMicro, selectedStudySet,
+    setSelectedMacro, setSelectedMicro, setSelectedStudySet,
   } = useWorldSettingsStore();
 
-  const entityCount = countEntities(selectedMacro, selectedMicro);
-  const worldRegion = resolveRegion(selectedMacro, selectedMicro);
+  const entityCount = countEntities(selectedMacro, selectedMicro, selectedStudySet);
+  const worldRegion = resolveRegion(selectedMacro, selectedMicro, selectedStudySet);
 
   function handleMode(modeId: QuizModeId, mapDisabled: boolean) {
     if (entityCount === 0 || mapDisabled) return;
@@ -79,8 +80,10 @@ export function WorldModeSelect() {
         <RegionSelector
           selectedMacro={selectedMacro}
           selectedMicro={selectedMicro}
+          selectedStudySet={selectedStudySet}
           onMacroChange={setSelectedMacro}
           onMicroChange={setSelectedMicro}
+          onStudySetChange={setSelectedStudySet}
         />
 
         {/* Entity count badge */}
