@@ -1,5 +1,5 @@
 import type { GeographicEntity } from './types';
-import { MACRO_REGIONS, getStudySet } from './world-regions';
+import { MACRO_REGIONS, parseStudySets } from './world-regions';
 
 /**
  * World countries for the geography quiz.
@@ -232,13 +232,13 @@ export const WORLD_COUNTRIES: GeographicEntity[] = [
 
 /**
  * Countries in a region selection: 'all', a macro-region id, a micro-region id,
- * or a study set id (e.g. 'africa-quiz-3').
+ * or one or more study set ids (e.g. 'africa-quiz-3' or 'africa-quiz-1+africa-quiz-2').
  */
 export function getCountriesForRegion(region?: string): GeographicEntity[] {
   if (!region || region === 'all') return WORLD_COUNTRIES;
-  const set = getStudySet(region);
-  if (set) {
-    return set.svgIds
+  const sets = parseStudySets(region);
+  if (sets) {
+    return [...new Set(sets.flatMap((s) => s.svgIds))]
       .map((id) => WORLD_COUNTRIES.find((c) => c.svgId === id))
       .filter((c): c is GeographicEntity => c !== undefined);
   }

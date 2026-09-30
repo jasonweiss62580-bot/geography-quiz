@@ -5,6 +5,7 @@ import { useQuizStore } from '../../stores/quizStore';
 import { useWorldSettingsStore } from '../../stores/worldSettingsStore';
 import { getCountriesForRegion } from '../../data/world-countries';
 import type { MacroRegionId, MicroRegionId, StudySetId } from '../../data/world-regions';
+import { joinStudySets } from '../../data/world-regions';
 import type { QuizModeId } from '../../data/types';
 import { resumeCtx } from '../../lib/audio';
 import styles from './WorldModeSelect.module.css';
@@ -23,16 +24,16 @@ const SKIP_FORMAT: QuizModeId[] = ['map-locate', 'matching'];
 const MAP_DISABLED_REGIONS = new Set(['all', 'americas']);
 
 /** Derive the worldRegion string to pass to QuizConfig */
-function resolveRegion(macro: MacroRegionId, micro: MicroRegionId, studySet: StudySetId | null): string {
+function resolveRegion(macro: MacroRegionId, micro: MicroRegionId, studySets: StudySetId[]): string {
   if (macro === 'all') return 'all';
-  if (studySet) return studySet;
+  if (studySets.length > 0) return joinStudySets(studySets);
   if (micro === 'all') return macro; // all countries in the macro
   return micro;
 }
 
 /** Count how many quiz-eligible countries are in the current selection */
-function countEntities(macro: MacroRegionId, micro: MicroRegionId, studySet: StudySetId | null): number {
-  return getCountriesForRegion(resolveRegion(macro, micro, studySet)).length;
+function countEntities(macro: MacroRegionId, micro: MicroRegionId, studySets: StudySetId[]): number {
+  return getCountriesForRegion(resolveRegion(macro, micro, studySets)).length;
 }
 
 export function WorldModeSelect() {
@@ -40,12 +41,12 @@ export function WorldModeSelect() {
   const { startSession } = useQuizStore();
   const {
     questionCount, showTimer, allowClose,
-    selectedMacro, selectedMicro, selectedStudySet,
-    setSelectedMacro, setSelectedMicro, setSelectedStudySet,
+    selectedMacro, selectedMicro, selectedStudySets,
+    setSelectedMacro, setSelectedMicro, setSelectedStudySets,
   } = useWorldSettingsStore();
 
-  const entityCount = countEntities(selectedMacro, selectedMicro, selectedStudySet);
-  const worldRegion = resolveRegion(selectedMacro, selectedMicro, selectedStudySet);
+  const entityCount = countEntities(selectedMacro, selectedMicro, selectedStudySets);
+  const worldRegion = resolveRegion(selectedMacro, selectedMicro, selectedStudySets);
 
   function handleMode(modeId: QuizModeId, mapDisabled: boolean) {
     if (entityCount === 0 || mapDisabled) return;
@@ -80,10 +81,10 @@ export function WorldModeSelect() {
         <RegionSelector
           selectedMacro={selectedMacro}
           selectedMicro={selectedMicro}
-          selectedStudySet={selectedStudySet}
+          selectedStudySets={selectedStudySets}
           onMacroChange={setSelectedMacro}
           onMicroChange={setSelectedMicro}
-          onStudySetChange={setSelectedStudySet}
+          onStudySetsChange={setSelectedStudySets}
         />
 
         {/* Entity count badge */}

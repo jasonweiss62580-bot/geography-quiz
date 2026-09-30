@@ -126,6 +126,29 @@ export function getStudySet(id: string): StudySetDef | undefined {
   return STUDY_SETS.find((s) => s.id === id);
 }
 
+/** Region id for one or more study sets, e.g. 'africa-quiz-1+africa-quiz-2' */
+export function joinStudySets(ids: StudySetId[]): string {
+  // Study guide order, so the same selection always gives the same id (and high score)
+  return STUDY_SETS.filter((s) => ids.includes(s.id)).map((s) => s.id).join('+');
+}
+
+/** The study sets in a region id made by joinStudySets, or null if it isn't one */
+export function parseStudySets(region: string): StudySetDef[] | null {
+  const sets = region.split('+').map(getStudySet);
+  return sets.every((s) => s !== undefined) ? (sets as StudySetDef[]) : null;
+}
+
+/**
+ * Which REGION_VIEW entry to zoom the map to for a region id. Several study sets
+ * zoom to the one region they all cover, or else to their whole macro region.
+ */
+export function getMapViewKey(region: string): string {
+  const sets = parseStudySets(region);
+  if (!sets || sets.length === 1) return region;
+  const covered = new Set(sets.flatMap((s) => s.regions));
+  return covered.size === 1 ? [...covered][0] : sets[0].macro;
+}
+
 /** All micro-regions across all macros */
 export const ALL_MICRO_REGIONS: MicroRegionDef[] = MACRO_REGIONS.flatMap((m) => m.micro);
 
@@ -148,8 +171,11 @@ export function getMicrosByMacro(macroId: MacroRegionId): MicroRegionDef[] {
 /** Get a human-readable label for any region ID */
 export function getRegionLabel(id: string): string {
   if (id === 'all') return 'All Available Regions';
-  const set = getStudySet(id);
-  if (set) return `${MACRO_REGIONS.find((m) => m.id === set.macro)?.label ?? ''} ${set.label}`.trim();
+  const sets = parseStudySets(id);
+  if (sets) {
+    const macroLabel = MACRO_REGIONS.find((m) => m.id === sets[0].macro)?.label ?? '';
+    return `${macroLabel} ${sets.map((s) => s.label).join(' + ')}`.trim();
+  }
   for (const macro of MACRO_REGIONS) {
     if (macro.id === id) return macro.label;
     const micro = macro.micro.find((m) => m.id === id);
@@ -158,10 +184,10 @@ export function getRegionLabel(id: string): string {
   return id;
 }
 
-/** Get the macro region that a micro-region or study set belongs to */
-export function getMacroForMicro(microId: MicroRegionId | StudySetId): MacroRegionId | null {
-  const set = getStudySet(microId);
-  if (set) return set.macro;
+/** Get the macro region that a micro-region or study set(s) belong to */
+export function getMacroForMicro(microId: string): MacroRegionId | null {
+  const sets = parseStudySets(microId);
+  if (sets) return sets[0].macro;
   for (const macro of MACRO_REGIONS) {
     if (macro.micro.find((m) => m.id === microId)) return macro.id;
   }

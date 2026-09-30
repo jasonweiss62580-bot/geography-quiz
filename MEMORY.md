@@ -39,3 +39,8 @@
 **What was decided:** The "Class quizzes" row shows only the quizzes for the selected region chip (All Africa shows all eight). Quiz 6 appears under both Middle and Southern Africa. The chosen quiz is stored separately from the region (`selectedStudySet`), so the region chip stays highlighted; tapping a region clears the quiz, and tapping the chosen quiz again returns to the whole region.
 **Why:** Makes it quicker to find the right quiz and keeps the region context visible.
 **What was rejected:** Always showing all quizzes grouped under region headings (takes more space and wasn't what was asked).
+
+## 2026-09-29, Class quiz chips are multi-select
+**What was decided:** Class quiz chips toggle on and off, so several can be chosen at once (e.g. Quiz 1 to 4) and the quiz draws from all of them. None chosen means the whole region. Stored as `selectedStudySets`; the quiz region id joins them in study guide order ('africa-quiz-1+africa-quiz-2'), so each combination keeps its own high score. The map zooms to the single region the chosen quizzes share, otherwise to all of Africa.
+**Why:** Holland's class quizzes are cumulative.
+**What was rejected:** A "cumulative" shortcut where tapping Quiz 4 selects Quiz 1 to 4 (not what was asked; still an option). Keeping chosen quizzes when switching region chips (quizzes outside the new region would be selected but hidden).

@@ -9,7 +9,7 @@ function asRotation(r: [number, number, number]): ProjectionConfig['rotate'] {
 import type { Feature, Geometry } from 'geojson';
 import type { GeographicEntity } from '../../data/types';
 import type { MacroRegionId } from '../../data/world-regions';
-import { MACRO_REGION_ISO_CODES } from '../../data/world-regions';
+import { MACRO_REGION_ISO_CODES, getMapViewKey } from '../../data/world-regions';
 import { isoToEntity } from './worldMapUtils';
 import styles from './WorldMap.module.css';
 
@@ -333,7 +333,8 @@ export const WorldMap = memo(function WorldMap({
   interactive = false,
   onCountryClick,
 }: WorldMapProps) {
-  const view = REGION_VIEW[regionId ?? macroRegion] ?? REGION_VIEW[macroRegion] ?? REGION_VIEW.americas;
+  const viewKey = regionId ? getMapViewKey(regionId) : macroRegion;
+  const view = REGION_VIEW[viewKey] ?? REGION_VIEW[macroRegion] ?? REGION_VIEW.americas;
   const visibleIso = macroRegion === 'all' ? null : (MACRO_REGION_ISO_CODES[macroRegion] ?? null);
 
   return (

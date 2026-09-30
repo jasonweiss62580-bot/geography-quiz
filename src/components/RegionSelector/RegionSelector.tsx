@@ -6,19 +6,19 @@ import styles from './RegionSelector.module.css';
 interface RegionSelectorProps {
   selectedMacro: MacroRegionId;
   selectedMicro: MicroRegionId;
-  selectedStudySet: StudySetId | null;
+  selectedStudySets: StudySetId[];
   onMacroChange: (macro: MacroRegionId) => void;
   onMicroChange: (micro: MicroRegionId) => void;
-  onStudySetChange: (id: StudySetId | null) => void;
+  onStudySetsChange: (ids: StudySetId[]) => void;
 }
 
 export function RegionSelector({
   selectedMacro,
   selectedMicro,
-  selectedStudySet,
+  selectedStudySets,
   onMacroChange,
   onMicroChange,
-  onStudySetChange,
+  onStudySetsChange,
 }: RegionSelectorProps) {
   const micros = selectedMacro === 'all' ? [] : getMicrosByMacro(selectedMacro);
   // Class quizzes are filtered by the selected region ("All" shows every quiz)
@@ -35,7 +35,16 @@ export function RegionSelector({
 
   function handleMicroClick(microId: MicroRegionId) {
     onMicroChange(microId);
-    onStudySetChange(null);
+    onStudySetsChange([]);
+  }
+
+  // Quizzes are cumulative, so several can be chosen; none chosen means the whole region
+  function handleStudySetClick(id: StudySetId) {
+    onStudySetsChange(
+      selectedStudySets.includes(id)
+        ? selectedStudySets.filter((s) => s !== id)
+        : [...selectedStudySets, id],
+    );
   }
 
   return (
@@ -98,9 +107,9 @@ export function RegionSelector({
             {studySets.map((set) => (
               <button
                 key={set.id}
-                className={`${styles.microChip} ${selectedStudySet === set.id ? styles.microActive : ''}`}
-                // Tapping the chosen quiz again goes back to the whole region
-                onClick={() => onStudySetChange(selectedStudySet === set.id ? null : set.id)}
+                className={`${styles.microChip} ${selectedStudySets.includes(set.id) ? styles.microActive : ''}`}
+                aria-pressed={selectedStudySets.includes(set.id)}
+                onClick={() => handleStudySetClick(set.id)}
               >
                 {set.label}
                 <span className={styles.rangeNote}>{set.range}</span>

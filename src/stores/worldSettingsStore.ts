@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { MacroRegionId, MicroRegionId, StudySetId } from '../data/world-regions';
-import { getStudySet } from '../data/world-regions';
+import { STUDY_SETS, getStudySet } from '../data/world-regions';
 
 interface WorldSettingsState {
   questionCount: number;
@@ -9,14 +9,14 @@ interface WorldSettingsState {
   allowClose: boolean;
   selectedMacro: MacroRegionId;
   selectedMicro: MicroRegionId;
-  /** Class quiz chosen within the selected region, or null for the whole region */
-  selectedStudySet: StudySetId | null;
+  /** Class quizzes chosen within the selected region; empty means the whole region */
+  selectedStudySets: StudySetId[];
   setQuestionCount: (n: number) => void;
   setShowTimer: (v: boolean) => void;
   setAllowClose: (v: boolean) => void;
   setSelectedMacro: (macro: MacroRegionId) => void;
   setSelectedMicro: (micro: MicroRegionId) => void;
-  setSelectedStudySet: (id: StudySetId | null) => void;
+  setSelectedStudySets: (ids: StudySetId[]) => void;
 }
 
 export const useWorldSettingsStore = create<WorldSettingsState>()(
@@ -27,22 +27,28 @@ export const useWorldSettingsStore = create<WorldSettingsState>()(
       allowClose: false,
       selectedMacro: 'americas',
       selectedMicro: 'north-america',
-      selectedStudySet: null,
+      selectedStudySets: [],
       setQuestionCount: (n) => set({ questionCount: Math.min(50, Math.max(1, n)) }),
       setShowTimer: (v) => set({ showTimer: v }),
       setAllowClose: (v) => set({ allowClose: v }),
       setSelectedMacro: (macro) => set({ selectedMacro: macro }),
       setSelectedMicro: (micro) => set({ selectedMicro: micro }),
-      setSelectedStudySet: (id) => set({ selectedStudySet: id }),
+      setSelectedStudySets: (ids) => set({ selectedStudySets: ids }),
     }),
     {
       name: 'world-quiz-settings',
-      version: 1,
-      // v0 stored a chosen class quiz in selectedMicro; move it to selectedStudySet
+      version: 2,
+      // v0 stored one class quiz in selectedMicro; v1 stored one in selectedStudySet.
+      // v2 stores a list in selectedStudySets.
       migrate: (persisted, version) => {
-        const state = persisted as Record<string, unknown>;
+        let state = persisted as Record<string, unknown>;
         if (version < 1 && typeof state.selectedMicro === 'string' && getStudySet(state.selectedMicro)) {
-          return { ...state, selectedStudySet: state.selectedMicro, selectedMicro: 'all' };
+          state = { ...state, selectedStudySet: state.selectedMicro, selectedMicro: 'all' };
+        }
+        if (version < 2) {
+          const { selectedStudySet, ...rest } = state;
+          const valid = STUDY_SETS.some((s) => s.id === selectedStudySet);
+          state = { ...rest, selectedStudySets: valid ? [selectedStudySet] : [] };
         }
         return state;
       },
