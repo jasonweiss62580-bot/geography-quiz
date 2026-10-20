@@ -78,6 +78,15 @@ export function generateQuestions(
           : `${entity.capital} is the capital of which state?`;
         return { entity, correctAnswer, options, prompt };
       }
+      case 'map-identify-capital': {
+        // Two typed answers per country; quizStore.submitPairAnswer scores each one
+        return {
+          entity,
+          correctAnswer: entity.name,
+          options: [],
+          prompt: 'Name the highlighted country and its capital',
+        };
+      }
       case 'map-locate': {
         return {
           entity,

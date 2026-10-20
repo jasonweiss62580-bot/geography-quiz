@@ -10,6 +10,7 @@ import { ProgressBar } from '../../components/ui/ProgressBar/ProgressBar';
 import { ScoreDisplay } from '../../components/ui/ScoreDisplay/ScoreDisplay';
 import { FeedbackOverlay } from '../../components/feedback/FeedbackOverlay/FeedbackOverlay';
 import { WorldMapIdentify } from '../../components/quiz-modes/WorldMapIdentify/WorldMapIdentify';
+import { WorldMapIdentifyCapital } from '../../components/quiz-modes/WorldMapIdentifyCapital/WorldMapIdentifyCapital';
 import { WorldMapLocate } from '../../components/quiz-modes/WorldMapLocate/WorldMapLocate';
 import { FlashcardForward } from '../../components/quiz-modes/FlashcardForward/FlashcardForward';
 import { FlashcardReverse } from '../../components/quiz-modes/FlashcardReverse/FlashcardReverse';
@@ -22,7 +23,7 @@ export function WorldQuizSession() {
   const navigate = useNavigate();
   const {
     phase, config, questions, currentIndex, answers,
-    submitAnswer, advanceQuestion, completeMatching,
+    submitAnswer, submitPairAnswer, advanceQuestion, completeMatching,
   } = useQuizStore();
   const { updateScore } = useScoresStore();
   const { playCorrect, playWrong, playFanfare } = useAudio();
@@ -37,8 +38,10 @@ export function WorldQuizSession() {
 
   useEffect(() => {
     if (phase === 'feedback') {
-      const lastAnswer = answers[answers.length - 1];
-      if (lastAnswer?.correct) playCorrect();
+      // Map Identify + Capital records two answers per question; both must be right
+      const count = config?.modeId === 'map-identify-capital' ? 2 : 1;
+      const latest = answers.slice(-count);
+      if (latest.length > 0 && latest.every((a) => a.correct)) playCorrect();
       else playWrong();
     }
     if (phase === 'complete') {
@@ -60,6 +63,8 @@ export function WorldQuizSession() {
   const lastAnswer = answers[answers.length - 1];
   const isFeedback = phase === 'feedback';
   const modeId = config.modeId;
+  // Country and capital answers from the latest Map Identify + Capital question
+  const lastPair = modeId === 'map-identify-capital' ? answers.slice(-2) : [];
   const formatId = config.formatId;
   const worldRegion = config.worldRegion;
 
@@ -113,6 +118,15 @@ export function WorldQuizSession() {
               onAnswer={submitAnswer}
             />
           )}
+          {modeId === 'map-identify-capital' && (
+            <WorldMapIdentifyCapital
+              question={question}
+              disabled={isFeedback}
+              allowClose={config.allowClose}
+              worldRegion={worldRegion}
+              onAnswer={submitPairAnswer}
+            />
+          )}
           {modeId === 'map-locate' && (
             <WorldMapLocate
               question={question}
@@ -147,7 +161,22 @@ export function WorldQuizSession() {
           )}
         </div>
 
-        {isFeedback && lastAnswer && modeId !== 'matching' && (
+        {isFeedback && lastPair.length === 2 && (
+          <FeedbackOverlay
+            correct={lastPair.every((a) => a.correct)}
+            // One of the two right shows as "Almost!"
+            wasClose={lastPair.some((a) => a.correct || a.wasClose)}
+            correctAnswer={formatAnswer(lastPair[0].question)}
+            parts={[
+              { label: 'Country', answer: formatAnswer(lastPair[0].question), correct: lastPair[0].correct },
+              { label: 'Capital', answer: formatAnswer(lastPair[1].question), correct: lastPair[1].correct },
+            ]}
+            // Extra time to read the corrections
+            durationMs={lastPair.every((a) => a.correct) ? 1200 : 2200}
+            onDismiss={advanceQuestion}
+          />
+        )}
+        {isFeedback && lastAnswer && modeId !== 'matching' && modeId !== 'map-identify-capital' && (
           <FeedbackOverlay
             correct={lastAnswer.correct}
             wasClose={lastAnswer.wasClose}

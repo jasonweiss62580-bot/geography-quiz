@@ -12,13 +12,14 @@ import styles from './WorldModeSelect.module.css';
 
 const MODES = [
   { id: 'map-identify',      emoji: '🔍', title: 'Map Identify',     desc: 'A highlighted country appears — name it!',    requiresRegion: true },
+  { id: 'map-identify-capital', emoji: '🏛️', title: 'Map Identify + Capital', desc: 'Spell the highlighted country and its capital.', requiresRegion: true },
   { id: 'map-locate',        emoji: '📍', title: 'Map Locate',       desc: 'A country name appears — find it on the map!', requiresRegion: true },
   { id: 'flashcard-forward', emoji: '📋', title: 'Country → Capital', desc: 'See the country, name the capital.',           requiresRegion: false },
   { id: 'flashcard-reverse', emoji: '🔄', title: 'Capital → Country', desc: 'See the capital, name the country.',           requiresRegion: false },
   { id: 'matching',          emoji: '🔗', title: 'Matching',          desc: 'Match 10 countries to their capitals.',         requiresRegion: false },
 ] as const;
 
-const SKIP_FORMAT: QuizModeId[] = ['map-locate', 'matching'];
+const SKIP_FORMAT: QuizModeId[] = ['map-locate', 'matching', 'map-identify-capital'];
 
 /** Region selections that are too broad for map-based quiz modes */
 const MAP_DISABLED_REGIONS = new Set(['all', 'americas']);
@@ -55,7 +56,8 @@ export function WorldModeSelect() {
     const baseConfig = {
       topicId: 'world-countries' as const,
       modeId,
-      formatId: 'multiple-choice' as const,
+      // Map Identify + Capital is always typed
+      formatId: modeId === 'map-identify-capital' ? ('spelling' as const) : ('multiple-choice' as const),
       questionCount,
       showTimer,
       allowClose,

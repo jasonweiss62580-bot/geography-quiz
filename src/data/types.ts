@@ -1,6 +1,7 @@
 export type QuizTopicId = 'us-states' | 'world-countries';
 export type QuizModeId =
   | 'map-identify'
+  | 'map-identify-capital'
   | 'map-locate'
   | 'flashcard-forward'
   | 'flashcard-reverse'

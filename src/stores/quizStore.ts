@@ -18,6 +18,8 @@ interface QuizState {
 
   startSession: (config: QuizConfig) => void;
   submitAnswer: (userAnswer: string) => void;
+  /** Map Identify + Capital: records two answers (country, then capital) */
+  submitPairAnswer: (countryAnswer: string, capitalAnswer: string) => void;
   advanceQuestion: () => void;
   completeMatching: (records: AnswerRecord[]) => void;
   resetSession: () => void;
@@ -29,6 +31,26 @@ function getPool(config: QuizConfig) {
     return US_STATES.filter((s) => s.region === config.usRegion);
   }
   return getCountriesForRegion(config.worldRegion);
+}
+
+function checkAnswer(
+  question: QuizQuestion,
+  userAnswer: string,
+  allowClose: boolean,
+  timeMs: number,
+): AnswerRecord {
+  const normalized = normalizeAnswer(userAnswer);
+  const targets = [question.correctAnswer, ...(question.acceptedAnswers ?? [])]
+    .map(normalizeAnswer);
+  const exact = targets.includes(normalized);
+  const close = !exact && targets.some((t) => isClose(normalized, t));
+  return {
+    question,
+    userAnswer,
+    correct: exact || (allowClose && close),
+    wasClose: close,
+    timeMs,
+  };
 }
 
 export const useQuizStore = create<QuizState>((set, get) => ({
@@ -58,20 +80,38 @@ export const useQuizStore = create<QuizState>((set, get) => ({
     if (!config) return;
     const question = questions[currentIndex];
     const timeMs = Date.now() - questionStartTime;
-    const normalized = normalizeAnswer(userAnswer);
-    const targets = [question.correctAnswer, ...(question.acceptedAnswers ?? [])]
-      .map(normalizeAnswer);
-    const exact = targets.includes(normalized);
-    const close = !exact && targets.some((t) => isClose(normalized, t));
-    const correct = exact || (config.allowClose && close);
-    const record: AnswerRecord = {
-      question,
-      userAnswer,
-      correct,
-      wasClose: close,
-      timeMs,
-    };
+    const record = checkAnswer(question, userAnswer, config.allowClose, timeMs);
     set({ phase: 'feedback', answers: [...answers, record] });
+  },
+
+  submitPairAnswer(countryAnswer, capitalAnswer) {
+    const { config, questions, currentIndex, answers, questionStartTime } = get();
+    if (!config) return;
+    const { entity } = questions[currentIndex];
+    // Split the time between the two parts so session totals stay accurate
+    const timeMs = Math.round((Date.now() - questionStartTime) / 2);
+    // Scored as two separate answers (a point each) so results show which part was missed
+    const countryQuestion: QuizQuestion = {
+      entity,
+      correctAnswer: entity.name,
+      options: [],
+      prompt: 'Which country is highlighted?',
+    };
+    const capitalQuestion: QuizQuestion = {
+      entity,
+      correctAnswer: entity.capital,
+      acceptedAnswers: entity.altCapitals,
+      options: [],
+      prompt: `What is the capital of ${entity.name}?`,
+    };
+    set({
+      phase: 'feedback',
+      answers: [
+        ...answers,
+        checkAnswer(countryQuestion, countryAnswer, config.allowClose, timeMs),
+        checkAnswer(capitalQuestion, capitalAnswer, config.allowClose, timeMs),
+      ],
+    });
   },
 
   advanceQuestion() {

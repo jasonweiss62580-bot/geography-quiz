@@ -44,3 +44,8 @@
 **What was decided:** Class quiz chips toggle on and off, so several can be chosen at once (e.g. Quiz 1 to 4) and the quiz draws from all of them. None chosen means the whole region. Stored as `selectedStudySets`; the quiz region id joins them in study guide order ('africa-quiz-1+africa-quiz-2'), so each combination keeps its own high score. The map zooms to the single region the chosen quizzes share, otherwise to all of Africa.
 **Why:** Holland's class quizzes are cumulative.
 **What was rejected:** A "cumulative" shortcut where tapping Quiz 4 selects Quiz 1 to 4 (not what was asked; still an option). Keeping chosen quizzes when switching region chips (quizzes outside the new region would be selected but hidden).
+
+## 2026-10-20, Map Identify + Capital mode
+**What was decided:** New World mode (`map-identify-capital`): a country is highlighted on the map and the player types both its name and its capital in two boxes with one Submit button. Always typed (skips the format screen). Each country is scored as two separate answers, a point for the country and a point for the capital, so results show which part was missed. Feedback shows "Almost!" when one part is right, lists the missed parts, and stays up 2.2 seconds (instead of 1.2) when there's a correction to read. World only for now.
+**Why:** Holland needs to practice spelling both country and capital from the map, likely matching how written class quizzes are graded.
+**What was rejected:** One point per country requiring both parts (a capital-only miss would score the same as missing both); entering the country and capital one after the other (two steps per country).
