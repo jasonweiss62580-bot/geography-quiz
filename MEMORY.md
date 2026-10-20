@@ -49,3 +49,13 @@
 **What was decided:** New World mode (`map-identify-capital`): a country is highlighted on the map and the player types both its name and its capital in two boxes with one Submit button. Always typed (skips the format screen). Each country is scored as two separate answers, a point for the country and a point for the capital, so results show which part was missed. Feedback shows "Almost!" when one part is right, lists the missed parts, and stays up 2.2 seconds (instead of 1.2) when there's a correction to read. World only for now.
 **Why:** Holland needs to practice spelling both country and capital from the map, likely matching how written class quizzes are graded.
 **What was rejected:** One point per country requiring both parts (a capital-only miss would score the same as missing both); entering the country and capital one after the other (two steps per country).
+
+## 2026-10-20, Taller, fitted map on phones
+**What was decided:** On screens 600px wide or less, map modes zoom to fit the current quiz's countries (`fitIds` on WorldMap, d3-geo `fitExtent`) and the map gets taller, between the normal 8:5 shape and square depending on the countries' shape. Each country is fitted by its main landmass(es) plus islands within 2.5 degrees, so far-off territories (Alaska, French Guiana, Canary Islands, Svalbard) don't zoom the map out; Russia and tiny island nations use a single point. The fit only ever zooms in from the normal view, so wide regions (Caribbean, North America) keep their normal view. Computers and iPads are unchanged. Added d3-geo as a direct dependency.
+**Why:** On phones the map was small enough that small countries were hard to see.
+**What was rejected:** Making the map taller and trimming the sides (needed hand-checking every view and could cut off edge countries); a taller map without zooming (adds ocean, countries no bigger).
+
+## 2026-10-20, Western Europe and All Europe map views refit
+**What was decided:** On computers and iPads, the Western Europe view changed from center [33, 48] scale 420 to center [19, 57] scale 400, and the All Europe view from center [15, 52] scale 420 to center [23, 57] scale 400 (rotated frame). Both were computed with d3-geo to fit their countries' main landmasses, so Iceland and northern Sweden, Finland, and Norway are no longer cut off.
+**Why:** The old views cut off Iceland and northern Scandinavia, which are quiz countries.
+**What was rejected:** Using the phone fit-to-countries zoom on computers too (bigger change to every view; the fixed views are fine elsewhere).

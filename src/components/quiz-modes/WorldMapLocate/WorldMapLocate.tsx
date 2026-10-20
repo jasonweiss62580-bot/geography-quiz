@@ -4,6 +4,7 @@ import type { GeographicEntity } from '../../../data/types';
 import type { MacroRegionId } from '../../../data/world-regions';
 import { getMacroForMicro } from '../../../data/world-regions';
 import { WorldMap } from '../../map/WorldMap';
+import { getCountriesForRegion } from '../../../data/world-countries';
 import styles from './WorldMapLocate.module.css';
 
 interface WorldMapLocateProps {
@@ -47,6 +48,11 @@ export function WorldMapLocate({ question, disabled, worldRegion, onAnswer }: Wo
     [wasCorrect, clickedId],
   );
   const macroRegion = getMacroFromRegion(worldRegion);
+  // On phones the map zooms to fit this quiz's countries
+  const fitIds = useMemo(
+    () => getCountriesForRegion(worldRegion).map((c) => c.svgId),
+    [worldRegion],
+  );
 
   return (
     <div className={styles.wrapper}>
@@ -55,6 +61,7 @@ export function WorldMapLocate({ question, disabled, worldRegion, onAnswer }: Wo
       <WorldMap
         macroRegion={macroRegion}
         regionId={worldRegion}
+        fitIds={fitIds}
         interactive={interactive}
         correctId={correctId}
         wrongId={wrongId}

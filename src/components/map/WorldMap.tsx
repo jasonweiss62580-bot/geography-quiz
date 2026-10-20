@@ -1,4 +1,6 @@
-import { useMemo, memo } from 'react';
+import { useMemo, memo, useSyncExternalStore } from 'react';
+import { geoArea, geoBounds, geoMercator, geoPath } from 'd3-geo';
+import type { GeoProjection } from 'd3-geo';
 import { ComposableMap, useMapContext, createCoordinates } from '@vnedyalk0v/react19-simple-maps';
 import type { ProjectionConfig } from '@vnedyalk0v/react19-simple-maps';
 
@@ -6,7 +8,7 @@ import type { ProjectionConfig } from '@vnedyalk0v/react19-simple-maps';
 function asRotation(r: [number, number, number]): ProjectionConfig['rotate'] {
   return r as ProjectionConfig['rotate'];
 }
-import type { Feature, Geometry } from 'geojson';
+import type { Feature, FeatureCollection, Geometry } from 'geojson';
 import type { GeographicEntity } from '../../data/types';
 import type { MacroRegionId } from '../../data/world-regions';
 import { MACRO_REGION_ISO_CODES, getMapViewKey } from '../../data/world-regions';
@@ -42,8 +44,10 @@ const REGION_VIEW: Record<string, { center: [number, number]; scale: number; rot
   // ── Europe ───────────────────────────────────────────────────────────────────
   // rotate: [-15, 0, 0] moves the antimeridian cut to -165°W (Pacific), so Russia's
   // path projects correctly. Center coords are in the rotated frame (geo lon − 15).
-  europe:           { center: [15, 52], scale: 420, rotate: [15, 0, 0] },
-  'western-europe': { center: [33, 48], scale: 420, rotate: [15, 0, 0] },
+  // Fits Iceland and northern Scandinavia down to Cyprus and Malta
+  europe:           { center: [23, 57], scale: 400, rotate: [15, 0, 0] },
+  // Fits Iceland and northern Scandinavia down to Cyprus and Malta
+  'western-europe': { center: [19, 57], scale: 400, rotate: [15, 0, 0] },
   'eastern-europe': { center: [28, 50], scale: 580, rotate: [15, 0, 0] },
 
   // ── Africa ───────────────────────────────────────────────────────────────────
@@ -161,6 +165,8 @@ function getFill(
 
 interface WorldMapProps {
   macroRegion?: MacroRegionId;
+  /** ISO codes of the quiz's countries. On narrow screens the map zooms to fit these. */
+  fitIds?: string[];
   /** Override projection with a micro- or macro-region key (e.g. 'north-america'). */
   regionId?: string;
   /** ISO codes the user can click (quiz pool). If undefined, all rendered countries are interactive. */
@@ -323,8 +329,127 @@ function WorldGeographies({
 }
 
 
+// ── Narrow screens ──────────────────────────────────────────────────────────
+// Phones get a taller map (up to square) zoomed to the quiz's countries, so they're
+// as big as the screen allows. Wider screens keep the fixed per-region views above.
+const NARROW_QUERY = '(max-width: 600px)';
+const MAP_WIDTH = 800;
+const MAP_HEIGHT = 500;
+/** Tallest the narrow-screen map gets (square) */
+const NARROW_MAP_MAX_HEIGHT = 800;
+/** Room around the fitted countries, in map units (fits island markers too) */
+const FIT_PADDING = 40;
+
+function subscribeNarrow(onChange: () => void) {
+  const mql = window.matchMedia(NARROW_QUERY);
+  mql.addEventListener('change', onChange);
+  return () => mql.removeEventListener('change', onChange);
+}
+
+function useIsNarrowScreen(): boolean {
+  return useSyncExternalStore(
+    subscribeNarrow,
+    () => window.matchMedia(NARROW_QUERY).matches,
+    () => false,
+  );
+}
+
+/** Islands this close (degrees) to a country's main landmass, directly or through
+ *  other nearby islands, count as part of it (Tasmania, Indonesia's islands). */
+const NEARBY_DEGREES = 2.5;
+
+type Bounds = [[number, number], [number, number]];
+
+/** Degrees between two bounding boxes (0 if they overlap); handles the date line */
+function boundsGap([[aw, as], [ae, an]]: Bounds, [[bw, bs], [be, bn]]: Bounds): number {
+  const span = (w: number, e: number) => (e - w + 360) % 360;
+  const inside = (x: number, w: number, e: number) => (x - w + 360) % 360 <= span(w, e);
+  const lonGap = inside(bw, aw, ae) || inside(aw, bw, be)
+    ? 0
+    : Math.min((bw - ae + 360) % 360, (aw - be + 360) % 360);
+  const latGap = Math.max(0, bs - an, as - bn);
+  return Math.max(lonGap, latGap);
+}
+
+/** Pieces at least this share of a country's largest piece also count as main
+ *  landmasses (Malaysia's peninsula and its part of Borneo). */
+const MAIN_LANDMASS_SHARE = 0.5;
+
+/**
+ * A country's main landmass(es) plus nearby islands. Leaves out far-off
+ * territories (French Guiana, the Canary Islands, Alaska) so they don't zoom
+ * the map out.
+ */
+function mainland(shape: Feature<Geometry>): Feature<Geometry> {
+  if (shape.geometry.type !== 'MultiPolygon') return shape;
+  const polygons = shape.geometry.coordinates.map((coordinates) => {
+    const polygon = { type: 'Polygon' as const, coordinates };
+    return { coordinates, area: geoArea(polygon), bounds: geoBounds(polygon) as Bounds };
+  });
+  const largestArea = Math.max(...polygons.map((p) => p.area));
+  const kept = polygons.filter((p) => p.area >= largestArea * MAIN_LANDMASS_SHARE);
+  // Keep adding islands near anything already kept
+  for (let added = true; added; ) {
+    added = false;
+    for (const p of polygons) {
+      if (!kept.includes(p) && kept.some((k) => boundsGap(k.bounds, p.bounds) <= NEARBY_DEGREES)) {
+        kept.push(p);
+        added = true;
+      }
+    }
+  }
+  return { ...shape, geometry: { type: 'MultiPolygon', coordinates: kept.map((k) => k.coordinates) } };
+}
+
+/**
+ * Shapes to fit the map to: each country's main landmass and nearby islands. Countries with a
+ * click overlay (Russia) and tiny islands drawn as markers use a single point,
+ * so one huge or missing shape doesn't zoom the map out.
+ */
+function fitShapes(ids: string[]): FeatureCollection {
+  const features: Feature[] = [];
+  for (const id of ids) {
+    const point =
+      COUNTRY_CLICK_OVERLAYS.find((o) => o.iso === id)?.coords ??
+      SMALL_ISLAND_MARKERS.find((m) => m.iso === id)?.coords;
+    if (point) {
+      features.push({ type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: point } });
+      continue;
+    }
+    const shape = WORLD_FEATURES.find((geo) => geoId(geo) === id);
+    if (shape) features.push(mainland(shape));
+  }
+  return { type: 'FeatureCollection', features };
+}
+
+/**
+ * A projection fitted to the given countries for the narrow-screen map, plus the
+ * map height that suits them (taller for tall regions, up to square; no blank
+ * bands for wide ones). Returns null to use the region's normal view: fitting
+ * only ever zooms in, so wide regions like the Caribbean keep their normal view.
+ */
+function fitProjection(
+  ids: string[],
+  view: { scale: number; rotate?: [number, number, number] },
+): { projection: GeoProjection; height: number } | null {
+  const shapes = fitShapes(ids);
+  if (shapes.features.length === 0) return null;
+  const fitTo = (height: number) =>
+    geoMercator()
+      .rotate(view.rotate ?? [0, 0, 0])
+      .fitExtent([[FIT_PADDING, FIT_PADDING], [MAP_WIDTH - FIT_PADDING, height - FIT_PADDING]], shapes);
+  // Fit to the tallest map first, then trim the height to the countries' shape
+  const [[, top], [, bottom]] = geoPath(fitTo(NARROW_MAP_MAX_HEIGHT)).bounds(shapes);
+  const height = Math.round(
+    Math.min(NARROW_MAP_MAX_HEIGHT, Math.max(MAP_HEIGHT, bottom - top + 2 * FIT_PADDING)),
+  );
+  const projection = fitTo(height);
+  return projection.scale() >= view.scale ? { projection, height } : null;
+}
+
 export const WorldMap = memo(function WorldMap({
   macroRegion = 'americas',
+  fitIds,
   regionId,
   clickableIds,
   highlightedIds = [],
@@ -336,20 +461,28 @@ export const WorldMap = memo(function WorldMap({
   const viewKey = regionId ? getMapViewKey(regionId) : macroRegion;
   const view = REGION_VIEW[viewKey] ?? REGION_VIEW[macroRegion] ?? REGION_VIEW.americas;
   const visibleIso = macroRegion === 'all' ? null : (MACRO_REGION_ISO_CODES[macroRegion] ?? null);
+  const isNarrow = useIsNarrowScreen();
+  const fitKey = fitIds?.join(',') ?? '';
+  const fitted = useMemo(
+    () => (isNarrow && fitKey ? fitProjection(fitKey.split(','), view) : null),
+    [isNarrow, fitKey, view],
+  );
+  const height = fitted?.height ?? MAP_HEIGHT;
 
   return (
     <div className={styles.wrapper}>
       <ComposableMap
-        key={`${view.scale}-${view.center[0]}-${view.center[1]}-${view.rotate?.join(',') ?? ''}`}
-        projection="geoMercator"
-        projectionConfig={{
+        // Remount on any projection change (see WorldGeographies on path caching)
+        key={`${view.scale}-${view.center[0]}-${view.center[1]}-${view.rotate?.join(',') ?? ''}-${height}-${fitted ? fitKey : ''}`}
+        projection={fitted?.projection ?? 'geoMercator'}
+        projectionConfig={fitted ? undefined : {
           center: createCoordinates(view.center[0], view.center[1]),
           scale: view.scale,
           ...(view.rotate ? { rotate: asRotation(view.rotate) } : {}),
         }}
         className={styles.map}
-        width={800}
-        height={500}
+        width={MAP_WIDTH}
+        height={height}
       >
         <WorldGeographies
           macroRegion={macroRegion}

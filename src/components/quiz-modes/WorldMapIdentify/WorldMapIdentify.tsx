@@ -3,6 +3,7 @@ import type { QuizQuestion } from '../../../data/types';
 import type { MacroRegionId } from '../../../data/world-regions';
 import { getMacroForMicro } from '../../../data/world-regions';
 import { WorldMap } from '../../map/WorldMap';
+import { getCountriesForRegion } from '../../../data/world-countries';
 import { MultipleChoice } from '../../answer-formats/MultipleChoice/MultipleChoice';
 import { SpellingInput } from '../../answer-formats/SpellingInput/SpellingInput';
 import styles from './WorldMapIdentify.module.css';
@@ -36,6 +37,11 @@ export function WorldMapIdentify({
     [question.entity.svgId],
   );
   const macroRegion = getMacroFromRegion(worldRegion);
+  // On phones the map zooms to fit this quiz's countries
+  const fitIds = useMemo(
+    () => getCountriesForRegion(worldRegion).map((c) => c.svgId),
+    [worldRegion],
+  );
 
   return (
     <div className={styles.wrapper}>
@@ -43,6 +49,7 @@ export function WorldMapIdentify({
       <WorldMap
         macroRegion={macroRegion}
         regionId={worldRegion}
+        fitIds={fitIds}
         highlightedIds={highlightedIds}
         interactive={false}
       />
