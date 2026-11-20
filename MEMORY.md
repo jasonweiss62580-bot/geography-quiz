@@ -59,3 +59,13 @@
 **What was decided:** On computers and iPads, the Western Europe view changed from center [33, 48] scale 420 to center [19, 57] scale 400, and the All Europe view from center [15, 52] scale 420 to center [23, 57] scale 400 (rotated frame). Both were computed with d3-geo to fit their countries' main landmasses, so Iceland and northern Sweden, Finland, and Norway are no longer cut off.
 **Why:** The old views cut off Iceland and northern Scandinavia, which are quiz countries.
 **What was rejected:** Using the phone fit-to-countries zoom on computers too (bigger change to every view; the fixed views are fine elsewhere).
+
+## 2026-11-19, World quizzes allow up to 200 questions
+**What was decided:** The World "Questions per Quiz" setting goes up to 200 (`MAX_WORLD_QUESTIONS`), up from 50. (First set to 250, then lowered to 200 since the app has 193 countries.) A quiz still never asks more questions than there are countries in the selection (193 for All). The input box was widened to fit three digits. The US setting stays at 50, since there are 50 states.
+**Why:** So Holland can test herself on every country in a region, or all of them, in one quiz.
+**What was rejected:** Removing the limit entirely (no benefit, since quizzes already stop at the number of countries available).
+
+## 2026-11-19, All 193 UN member countries
+**What was decided:** Added Andorra, Liechtenstein, Monaco, and San Marino to Western Europe, so the app covers all 193 UN members. They're drawn as small dot markers (like Malta and Cyprus) because they're too small to see or click as shapes. Monaco's and San Marino's capitals share the country's name.
+**Why:** The goal is being able to test on every country.
+**What was rejected:** Adding non-UN places such as Vatican City, Kosovo, or Taiwan (not asked for; could be added later).

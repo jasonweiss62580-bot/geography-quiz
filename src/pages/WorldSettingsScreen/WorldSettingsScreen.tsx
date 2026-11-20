@@ -1,5 +1,5 @@
 import { PageLayout } from '../../components/layout/PageLayout/PageLayout';
-import { useWorldSettingsStore } from '../../stores/worldSettingsStore';
+import { MAX_WORLD_QUESTIONS, useWorldSettingsStore } from '../../stores/worldSettingsStore';
 import styles from './WorldSettingsScreen.module.css';
 
 export function WorldSettingsScreen() {
@@ -21,10 +21,10 @@ export function WorldSettingsScreen() {
                 className={styles.countInput}
                 value={questionCount}
                 min={1}
-                max={50}
+                max={MAX_WORLD_QUESTIONS}
                 onChange={(e) => setQuestionCount(Number(e.target.value))}
               />
-              <span className={styles.hint}>(1–50)</span>
+              <span className={styles.hint}>(1–{MAX_WORLD_QUESTIONS})</span>
             </div>
           </div>
 

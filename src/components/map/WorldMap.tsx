@@ -125,6 +125,11 @@ const SMALL_ISLAND_MARKERS: Array<{ iso: string; coords: [number, number]; macro
   // Europe islands
   { iso: '470', coords: [ 14.38, 35.90], macro: 'europe'  }, // Malta
   { iso: '196', coords: [ 33.00, 35.10], macro: 'europe'  }, // Cyprus
+  // Europe microstates (too small to see or click as shapes)
+  { iso: '20',  coords: [  1.52, 42.51], macro: 'europe'  }, // Andorra
+  { iso: '438', coords: [  9.55, 47.14], macro: 'europe'  }, // Liechtenstein
+  { iso: '492', coords: [  7.42, 43.74], macro: 'europe'  }, // Monaco
+  { iso: '674', coords: [ 12.46, 43.94], macro: 'europe'  }, // San Marino
 ];
 
 const SMALL_ISLAND_ISO_SET = new Set(SMALL_ISLAND_MARKERS.map((m) => m.iso));

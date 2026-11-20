@@ -3,6 +3,9 @@ import { persist } from 'zustand/middleware';
 import type { MacroRegionId, MicroRegionId, StudySetId } from '../data/world-regions';
 import { STUDY_SETS, getStudySet } from '../data/world-regions';
 
+/** Most questions per World quiz; high enough to cover every country */
+export const MAX_WORLD_QUESTIONS = 200;
+
 interface WorldSettingsState {
   questionCount: number;
   showTimer: boolean;
@@ -28,7 +31,7 @@ export const useWorldSettingsStore = create<WorldSettingsState>()(
       selectedMacro: 'americas',
       selectedMicro: 'north-america',
       selectedStudySets: [],
-      setQuestionCount: (n) => set({ questionCount: Math.min(50, Math.max(1, n)) }),
+      setQuestionCount: (n) => set({ questionCount: Math.min(MAX_WORLD_QUESTIONS, Math.max(1, n)) }),
       setShowTimer: (v) => set({ showTimer: v }),
       setAllowClose: (v) => set({ allowClose: v }),
       setSelectedMacro: (macro) => set({ selectedMacro: macro }),

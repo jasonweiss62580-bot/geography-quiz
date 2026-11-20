@@ -72,6 +72,10 @@ export const WORLD_COUNTRIES: GeographicEntity[] = [
   { name: 'Malta',          abbreviation: 'MT', capital: 'Valletta',   svgId: '470', region: 'western-europe' },
   { name: 'Greece',         abbreviation: 'GR', capital: 'Athens',     svgId: '300', region: 'western-europe' },
   { name: 'Cyprus',         abbreviation: 'CY', capital: 'Nicosia',    svgId: '196', region: 'western-europe' },
+  { name: 'Andorra',        abbreviation: 'AD', capital: 'Andorra la Vella', svgId: '20',  region: 'western-europe' },
+  { name: 'Liechtenstein',  abbreviation: 'LI', capital: 'Vaduz',      svgId: '438', region: 'western-europe' },
+  { name: 'Monaco',         abbreviation: 'MC', capital: 'Monaco',     svgId: '492', region: 'western-europe' },
+  { name: 'San Marino',     abbreviation: 'SM', capital: 'San Marino', svgId: '674', region: 'western-europe' },
 
   // ── Eastern Europe ───────────────────────────────────────────────────────────
   { name: 'Poland',                 abbreviation: 'PL', capital: 'Warsaw',       svgId: '616', region: 'eastern-europe' },

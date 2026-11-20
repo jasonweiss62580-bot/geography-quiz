@@ -36,7 +36,7 @@
 }
 
 .countInput {
-  width: 64px;
+  width: 80px; /* room for three digits plus the number spinner */
   padding: var(--space-1) var(--space-2);
   border: 2px solid var(--color-border);
   border-radius: var(--radius-sm);
